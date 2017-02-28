@@ -2512,9 +2512,8 @@ def database_migrate(db, old_ver):
                            'MODIFY COLUMN `height` FLOAT NULL DEFAULT NULL,'
                            'MODIFY COLUMN `gender` SMALLINT NULL DEFAULT NULL'
                            ';')
-            
+
     if old_ver < 16:
 
         db.drop_tables([WorkerStatus])
         db.drop_tables([MainWorker])
-
