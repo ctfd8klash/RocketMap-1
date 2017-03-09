@@ -38,7 +38,7 @@ args = get_args()
 flaskDb = FlaskDB()
 cache = TTLCache(maxsize=100, ttl=60 * 5)
 
-db_schema_version = 16
+db_schema_version = 17
 
 
 class MyRetryDB(RetryOperationalError, PooledMySQLDatabase):
@@ -2605,3 +2605,7 @@ def database_migrate(db, old_ver):
                 migrator.add_index('pokestop', ('last_updated',), False)
             )
         log.info('Schema upgrade complete.')
+
+    if old_ver < 17:
+        db.drop_tables([WorkerStatus])
+        db.drop_tables([MainWorker])
