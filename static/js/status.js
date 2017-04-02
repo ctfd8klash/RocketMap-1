@@ -12,6 +12,7 @@ var failed
 var empty
 var skipped
 var captcha
+var mainWorkers
 var elapsedTotal
 var elapsedSecs
 var elapsedHours
@@ -111,9 +112,6 @@ function processWorker(i, worker) {
 }
 
 function parseResult(result) {
-    if ($('#worker_' + statshash).length === 0) {
-        addStatsWorker(statshash)
-    }
     addTotalStats(result)
     if (groupByWorker) {
         $.each(result.main_workers, processMainWorker)
@@ -225,6 +223,7 @@ function getStats(i, worker) {
     empty += worker['empty']
     skipped += worker['skip']
     captcha += worker['captcha']
+    mainWorkers += 1
 
     elapsedTotal += worker['elapsed']
     elapsedSecs = elapsedTotal / (i + 1)
@@ -236,7 +235,7 @@ function getActive(i, worker) {
 }
 
 function addTotalStats(result) {
-    var statmsg
+    var statmsg, title
 
     active = 0
     success = 0
@@ -244,6 +243,7 @@ function addTotalStats(result) {
     empty = 0
     skipped = 0
     captcha = 0
+    mainWorkers = 0
     elapsedTotal = 0
     elapsedSecs = 0
     elapsedHours = 0
@@ -256,20 +256,33 @@ function addTotalStats(result) {
     cmonth = 0
 
     $.each(result.main_workers, getStats)
-    $.each(result.workers, getActive)
 
-    sph = (success * 3600 / elapsedSecs) || 0
-    fph = (failed * 3600 / elapsedSecs) || 0
-    eph = (empty * 3600 / elapsedSecs) || 0
-    skph = (skipped * 3600 / elapsedSecs) || 0
-    cph = (captcha * 3600 / elapsedSecs) || 0
-    ccost = cph * 0.00299
-    cmonth = ccost * 730
+    if ((mainWorkers > 1) || !groupByWorker) {
+        $.each(result.workers, getActive)
 
-    statmsg = 'Total active: ' + active + ' | Success: ' + success.toFixed() + ' (' + sph.toFixed(1) + '/hr) | Fails: ' + failed.toFixed() + ' (' + fph.toFixed(1) + '/hr) | Empties: ' + empty.toFixed() + ' (' + eph.toFixed(1) + '/hr) | Skips: ' + skipped.toFixed() + ' (' + skph.toFixed(1) + '/hr) | Captchas: ' + captcha.toFixed() + ' (' + cph.toFixed(1) + '/hr) ($' + ccost.toFixed(5) + '/hr, $' + cmonth.toFixed(3) + '/mo) | Elapsed:  ' + elapsedHours.toFixed(1) + 'h (' + elapsedSecs.toFixed(0) + 's)<hr />'
-    $('#name_' + statshash).html('All Instances')
-    $('#method_' + statshash).html('(Total Statistics)')
-    $('#message_' + statshash).html(statmsg)
+        sph = (success * 3600 / elapsedSecs) || 0
+        fph = (failed * 3600 / elapsedSecs) || 0
+        eph = (empty * 3600 / elapsedSecs) || 0
+        skph = (skipped * 3600 / elapsedSecs) || 0
+        cph = (captcha * 3600 / elapsedSecs) || 0
+        ccost = cph * 0.00299
+        cmonth = ccost * 730
+
+        if ($('#worker_' + statshash).length === 0) {
+            addStatsWorker(statshash)
+        }
+
+        statmsg = 'Total active: ' + active + ' | Success: ' + success.toFixed() + ' (' + sph.toFixed(1) + '/hr) | Fails: ' + failed.toFixed() + ' (' + fph.toFixed(1) + '/hr) | Empties: ' + empty.toFixed() + ' (' + eph.toFixed(1) + '/hr) | Skips: ' + skipped.toFixed() + ' (' + skph.toFixed(1) + '/hr) | Captchas: ' + captcha.toFixed() + ' (' + cph.toFixed(1) + '/hr) ($' + ccost.toFixed(5) + '/hr, $' + cmonth.toFixed(3) + '/mo) | Elapsed:  ' + elapsedHours.toFixed(1) + 'h (' + elapsedSecs.toFixed(0) + 's)<hr />'
+        statmsg = 'Total active: ' + active + ' | Success: ' + success.toFixed() + ' (' + sph.toFixed(1) + '/hr) | Fails: ' + failed.toFixed() + ' (' + fph.toFixed(1) + '/hr) | Empties: ' + empty.toFixed() + ' (' + eph.toFixed(1) + '/hr) | Skips: ' + skipped.toFixed() + ' (' + skph.toFixed(1) + '/hr) | Captchas: ' + captcha.toFixed() + ' (' + cph.toFixed(1) + '/hr) ($' + ccost.toFixed(5) + '/hr, $' + cmonth.toFixed(3) + '/mo) | Elapsed:  ' + elapsedHours.toFixed(1) + 'h (' + elapsedSecs.toFixed(0) + 's)<hr />'
+        if (mainWorkers > 1) {
+            title = '(Total Statistics across ' + mainWorkers + ' instances)'
+        } else {
+            title = '(Total Statistics across ' + mainWorkers + ' instance)'
+        }
+        $('#name_' + statshash).html('All Instances')
+        $('#method_' + statshash).html(title)
+        $('#message_' + statshash).html(statmsg)
+    }
 }
 
 /**
