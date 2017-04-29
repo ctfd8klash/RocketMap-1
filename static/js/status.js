@@ -273,7 +273,7 @@ function addTotalStats(result) {
             addStatsWorker(statshash)
         }
 
-        statmsg = 'Total active: ' + active + ' | Success: ' + success.toFixed() + ' (' + sph.toFixed(1) + '/hr) | Fails: ' + failed.toFixed() + ' (' + fph.toFixed(1) + '/hr) | Empties: ' + empty.toFixed() + ' (' + eph.toFixed(1) + '/hr) | Skips: ' + skipped.toFixed() + ' (' + skph.toFixed(1) + '/hr) | Captchas: ' + captcha.toFixed() + ' (' + cph.toFixed(1) + '/hr) ($' + ccost.toFixed(5) + '/hr, $' + cmonth.toFixed(3) + '/mo) | Elapsed:  ' + elapsedHours.toFixed(1) + 'h (' + elapsedSecs.toFixed(0) + 's)<hr />'
+        statmsg = 'Total active: ' + active + ' | Success: ' + success.toFixed() + ' (' + sph.toFixed(1) + '/hr) | Fails: ' + failed.toFixed() + ' (' + fph.toFixed(1) + '/hr) | Empties: ' + empty.toFixed() + ' (' + eph.toFixed(1) + '/hr) | Skips: ' + skipped.toFixed() + ' (' + skph.toFixed(1) + '/hr) | Captchas: ' + captcha.toFixed() + ' (' + cph.toFixed(1) + '/hr) ($' + ccost.toFixed(1) + '/hr, $' + cmonth.toFixed(1) + '/mo) | Elapsed:  ' + elapsedHours.toFixed(1) + 'h (' + elapsedSecs.toFixed(0) + 's)<hr />'
         if (mainWorkers > 1) {
             title = '(Total Statistics across ' + mainWorkers + ' instances)'
         } else {
