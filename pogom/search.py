@@ -640,14 +640,14 @@ def get_stats_message(threadStatus):
                'Fails: {} ({:.1f}/hr) | Empties: {} ({:.1f}/hr) | ' +
                'Skips {} ({:.1f}/hr) | ' +
                'Captchas: {} ({:.1f}/hr) (${:.1f}/hr, ${:.1f}/mo) | ' +
-               'Elapsed: {:.1f}h ({}s)').format(
+               'Elapsed: {:.1f}h').format(
                    overseer['active_accounts'],
                    overseer['success_total'], sph,
                    overseer['fail_total'], fph,
                    overseer['empty_total'], eph,
                    overseer['skip_total'], skph,
                    overseer['captcha_total'], cph,
-                   ccost, cmonth, elapsed / 3600.0, elapsed)
+                   ccost, cmonth, elapsed / 3600.0)
 
     return message
 
