@@ -3116,6 +3116,6 @@ def database_migrate(db, old_ver):
     if old_ver < 21:
         db.drop_tables([WorkerStatus])
         db.drop_tables([MainWorker])
-        
+
     # Always log that we're done.
     log.info('Schema upgrade complete.')
