@@ -18,12 +18,12 @@ from flask_cache_bust import init_cache_busting
 
 from pogom import config
 from pogom.app import Pogom
-from pogom.utils import get_args, now, extract_sprites
+from pogom.utils import get_args, now, extract_sprites, gmaps_reverse_geolocate
 from pogom.altitude import get_gmaps_altitude
 
 from pogom.search import search_overseer_thread
 from pogom.models import (init_database, create_tables, drop_tables,
-                          Pokemon, db_updater, clean_db_loop,
+                          Pokemon, PlayerLocale, db_updater, clean_db_loop,
                           verify_table_encoding, verify_database_schema)
 from pogom.webhook import wh_updater
 
@@ -134,6 +134,15 @@ def main():
             extract_sprites(root_path)
             log.info('Done!')
 
+        # Check if custom.css is used otherwise fall back to default.
+        if os.path.exists(os.path.join(root_path, 'static/css/custom.css')):
+            args.custom_css = True
+            log.info(
+                'File \"custom.css\" found, applying user-defined settings.')
+        else:
+            args.custom_css = False
+            log.info('No file \"custom.css\" found, using default settings.')
+
     # These are very noisy, let's shush them up a bit.
     logging.getLogger('peewee').setLevel(logging.INFO)
     logging.getLogger('requests').setLevel(logging.WARNING)
@@ -144,6 +153,7 @@ def main():
     config['parse_pokemon'] = not args.no_pokemon
     config['parse_pokestops'] = not args.no_pokestops
     config['parse_gyms'] = not args.no_gyms
+    config['parse_raids'] = not args.no_raids
 
     # Turn these back up if debugging.
     if args.verbose or args.very_verbose:
@@ -302,6 +312,23 @@ def main():
             t.start()
         else:
             log.info('Periodical proxies refresh disabled.')
+
+        # Update player locale if not set correctly, yet.
+        args.player_locale = PlayerLocale.get_locale(args.location)
+        if not args.player_locale:
+            args.player_locale = gmaps_reverse_geolocate(
+                args.gmaps_key,
+                args.locale,
+                str(position[0]) + ', ' + str(position[1]))
+            db_player_locale = {
+                'location': args.location,
+                'country': args.player_locale['country'],
+                'language': args.player_locale['country'],
+                'timezone': args.player_locale['timezone'],
+            }
+            db_updates_queue.put((PlayerLocale, {0: db_player_locale}))
+        else:
+            log.debug('Existing player locale has been retrieved from the DB.')
 
         # Gather the Pokemon!
 
