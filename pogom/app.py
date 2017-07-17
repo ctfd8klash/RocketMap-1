@@ -17,7 +17,8 @@ from bisect import bisect_left
 
 from . import config
 from .models import (Pokemon, Gym, Pokestop, ScannedLocation,
-                     MainWorker, WorkerStatus, Token, HashKeys)
+                     MainWorker, WorkerStatus, Token, HashKeys,
+                     SpawnPoint)
 from .utils import now, dottedQuadToNum, get_blacklist
 log = logging.getLogger(__name__)
 compress = Compress()
@@ -174,9 +175,6 @@ class Pogom(Flask):
 
         map_lat = self.current_location[0]
         map_lng = self.current_location[1]
-        if request.args:
-            map_lat = request.args.get('lat') or self.current_location[0]
-            map_lng = request.args.get('lon') or self.current_location[1]
 
         return render_template('map.html',
                                lat=map_lat,
@@ -358,15 +356,15 @@ class Pogom(Flask):
 
         if request.args.get('spawnpoints', 'false') == 'true':
             if lastspawns != 'true':
-                d['spawnpoints'] = Pokemon.get_spawnpoints(
+                d['spawnpoints'] = SpawnPoint.get_spawnpoints(
                     swLat=swLat, swLng=swLng, neLat=neLat, neLng=neLng)
             else:
-                d['spawnpoints'] = Pokemon.get_spawnpoints(
+                d['spawnpoints'] = SpawnPoint.get_spawnpoints(
                     swLat=swLat, swLng=swLng, neLat=neLat, neLng=neLng,
                     timestamp=timestamp)
                 if newArea:
                     d['spawnpoints'] = d['spawnpoints'] + (
-                        Pokemon.get_spawnpoints(
+                        SpawnPoint.get_spawnpoints(
                             swLat, swLng, neLat, neLng,
                             oSwLat=oSwLat, oSwLng=oSwLng,
                             oNeLat=oNeLat, oNeLng=oNeLng))
@@ -393,6 +391,8 @@ class Pogom(Flask):
         args = get_args()
         if args.fixed_location:
             return 'Location changes are turned off', 403
+        lat = None
+        lon = None
         # Part of query string.
         if request.args:
             lat = request.args.get('lat', type=float)

@@ -24,7 +24,6 @@ import sys
 import traceback
 import random
 import time
-import copy
 import requests
 import schedulers
 import terminalsize
@@ -96,9 +95,8 @@ def switch_status_printer(display_type, current_page, mainlog,
 
 
 # Thread to print out the status of each worker.
-def status_printer(threadStatus, search_items_queue_array, db_updates_queue,
-                   wh_queue, account_queue, account_failures, account_captchas,
-                   logmode, hash_key, key_scheduler):
+def status_printer(threadStatus, account_failures, logmode, hash_key,
+                   key_scheduler):
 
     if (logmode == 'logs'):
         display_type = ['logs']
@@ -139,20 +137,6 @@ def status_printer(threadStatus, search_items_queue_array, db_updates_queue,
             # divide by zero.
             if usable_height < 1:
                 usable_height = 1
-
-            # Print the queue length.
-            search_items_queue_size = 0
-            for i in range(0, len(search_items_queue_array)):
-                search_items_queue_size += search_items_queue_array[i].qsize()
-
-            skip_total = threadStatus['Overseer']['skip_total']
-            status_text.append((
-                'Queues: {} search items, {} db updates, {} webhook.  ' +
-                'Total skipped items: {}. Spare accounts available: {}. ' +
-                'Accounts on hold: {}. Accounts with captcha: {}').format(
-                    search_items_queue_size, db_updates_queue.qsize(),
-                    wh_queue.qsize(), skip_total, account_queue.qsize(),
-                    len(account_failures), len(account_captchas)))
 
             # Print status of overseer.
             status_text.append('{} Overseer: {}'.format(
@@ -347,7 +331,7 @@ def worker_status_db_thread(threads_status, name, db_updates_queue):
 
 
 # The main search loop that keeps an eye on the over all process.
-def search_overseer_thread(args, new_location_queue, pause_bit, heartb,
+def search_overseer_thread(args, new_location_queue, control_flags, heartb,
                            db_updates_queue, wh_queue):
 
     log.info('Search overseer starting...')
@@ -409,15 +393,13 @@ def search_overseer_thread(args, new_location_queue, pause_bit, heartb,
         key_scheduler = schedulers.KeyScheduler(args.hash_key,
                                                 db_updates_queue)
 
-    if(args.print_status):
+    if (args.print_status):
         log.info('Starting status printer thread...')
-        t = Thread(target=status_printer,
-                   name='status_printer',
-                   args=(threadStatus, search_items_queue_array,
-                         db_updates_queue, wh_queue, account_queue,
-                         account_failures, account_captchas,
-                         args.print_status, args.hash_key,
-                         key_scheduler))
+        t = Thread(
+            target=status_printer,
+            name='status_printer',
+            args=(threadStatus, account_failures, args.print_status,
+                  args.hash_key, key_scheduler))
         t.daemon = True
         t.start()
 
@@ -483,7 +465,7 @@ def search_overseer_thread(args, new_location_queue, pause_bit, heartb,
                    name='search-worker-{}'.format(i),
                    args=(args, account_queue, account_sets,
                          account_failures, account_captchas,
-                         search_items_queue, pause_bit,
+                         search_items_queue, control_flags,
                          threadStatus[workerId], db_updates_queue,
                          wh_queue, scheduler, key_scheduler))
         t.daemon = True
@@ -501,7 +483,7 @@ def search_overseer_thread(args, new_location_queue, pause_bit, heartb,
 
     stats_timer = 0
 
-    # The real work starts here but will halt on pause_bit.set().
+    # The real work starts here but will halt when any control flag is set.
     while True:
         if (args.hash_key is not None and
                 (hashkeys_last_upsert + hashkeys_upsert_min_delay)
@@ -512,17 +494,17 @@ def search_overseer_thread(args, new_location_queue, pause_bit, heartb,
         odt_triggered = (args.on_demand_timeout > 0 and
                          (now() - args.on_demand_timeout) > heartb[0])
         if odt_triggered:
-            pause_bit.set()
+            control_flags['on_demand'].set()
             log.info('Searching paused due to inactivity...')
 
         # Wait here while scanning is paused.
-        while pause_bit.is_set():
+        while is_paused(control_flags):
             for i in range(0, len(scheduler_array)):
                 scheduler_array[i].scanning_paused()
             # API Watchdog - Continue to check API version.
             if not args.no_version_check and not odt_triggered:
                 api_check_time = check_forced_version(
-                    args, api_check_time, pause_bit)
+                    args, api_check_time, control_flags['api_watchdog'])
             time.sleep(1)
 
         # If a new location has been passed to us, get the most recent one.
@@ -576,14 +558,15 @@ def search_overseer_thread(args, new_location_queue, pause_bit, heartb,
             traceback.print_exc(file=sys.stdout)
             time.sleep(10)
         threadStatus['Overseer']['message'] += '\n' + get_stats_message(
-            threadStatus)
+            threadStatus, search_items_queue_array, db_updates_queue, wh_queue,
+            account_queue, account_failures, account_captchas)
 
         # If enabled, display statistics information into logs on a
         # periodic basis.
         if args.stats_log_timer:
             stats_timer += 1
             if stats_timer == args.stats_log_timer:
-                log.info(get_stats_message(threadStatus))
+                log.info(threadStatus['Overseer']['message'])
                 stats_timer = 0
 
         # Update Overseer statistics
@@ -598,7 +581,7 @@ def search_overseer_thread(args, new_location_queue, pause_bit, heartb,
         # API Watchdog - Check if Niantic forces a new API.
         if not args.no_version_check and not odt_triggered:
             api_check_time = check_forced_version(
-                args, api_check_time, pause_bit)
+                args, api_check_time, control_flags['api_watchdog'])
 
         # Now we just give a little pause here.
         time.sleep(1)
@@ -631,7 +614,9 @@ def wh_status_update(args, status, wh_queue, scheduler):
             status['scheduler_status']['tth_found'] = tth_found
 
 
-def get_stats_message(threadStatus):
+def get_stats_message(threadStatus, search_items_queue_array, db_updates_queue,
+                      wh_queue, account_queue, account_failures,
+                      account_captchas):
     overseer = threadStatus['Overseer']
     starttime = overseer['starttime']
     elapsed = now() - starttime
@@ -650,45 +635,64 @@ def get_stats_message(threadStatus):
     ccost = cph * 0.00299
     cmonth = ccost * 730
 
-    message = ('Total active: {}  |  Success: {} ({:.1f}/hr) | ' +
-               'Fails: {} ({:.1f}/hr) | Empties: {} ({:.1f}/hr) | ' +
-               'Skips {} ({:.1f}/hr) | ' +
-               'Captchas: {} ({:.1f}/hr) (${:.1f}/hr, ${:.1f}/mo) | ' +
-               'Elapsed: {:.1f}h').format(
-                   overseer['active_accounts'],
-                   overseer['success_total'], sph,
-                   overseer['fail_total'], fph,
-                   overseer['empty_total'], eph,
-                   overseer['skip_total'], skph,
-                   overseer['captcha_total'], cph,
-                   ccost, cmonth, elapsed / 3600.0)
+    # Print the queue length.
+    search_items_queue_size = 0
+    for i in range(0, len(search_items_queue_array)):
+        search_items_queue_size += search_items_queue_array[i].qsize()
+
+    message = (
+        'Queues: {} search items, {} db updates, {} webhook.  ' +
+        'Spare accounts available: {}. Accounts on hold: {}. ' +
+        'Accounts with captcha: {}\n'
+    ).format(search_items_queue_size,
+             db_updates_queue.qsize(),
+             wh_queue.qsize(),
+             account_queue.qsize(),
+             len(account_failures), len(account_captchas))
+
+    message += (
+        'Total active: {}  |  Success: {} ({:.1f}/hr) | ' +
+        'Fails: {} ({:.1f}/hr) | Empties: {} ({:.1f}/hr) | ' +
+        'Skips {} ({:.1f}/hr) | Captchas: {} ({:.1f}/hr) (${:.1f}/hr, ${:.1f}/mo) | ' +
+        'Elapsed: {:.1f}h'
+    ).format(overseer['active_accounts'], overseer['success_total'], sph,
+             overseer['fail_total'], fph, overseer['empty_total'], eph,
+             overseer['skip_total'], skph, overseer['captcha_total'], cph,
+             ccost, cmonth, elapsed / 3600.0)
 
     return message
 
 
 def update_total_stats(threadStatus, last_account_status):
     overseer = threadStatus['Overseer']
-
     # Calculate totals.
-    usercount = 0
+    active_count = 0
     current_accounts = Set()
     for tstatus in threadStatus.itervalues():
         if tstatus.get('type', '') == 'Worker':
-            usercount += 1
+            if tstatus.get('active', False):
+                active_count += 1
+
             username = tstatus.get('username', '')
             current_accounts.add(username)
             last_status = last_account_status.get(username, {})
             overseer['skip_total'] += stat_delta(tstatus, last_status, 'skip')
-            overseer[
-                'captcha_total'] += stat_delta(tstatus, last_status, 'captcha')
-            overseer[
-                'empty_total'] += stat_delta(tstatus, last_status, 'noitems')
+            overseer['captcha_total'] += stat_delta(tstatus, last_status,
+                                                    'captcha')
+            overseer['empty_total'] += stat_delta(tstatus, last_status,
+                                                  'noitems')
             overseer['fail_total'] += stat_delta(tstatus, last_status, 'fail')
-            overseer[
-                'success_total'] += stat_delta(tstatus, last_status, 'success')
-            last_account_status[username] = copy.deepcopy(tstatus)
+            overseer['success_total'] += stat_delta(tstatus, last_status,
+                                                    'success')
+            last_account_status[username] = {
+                'skip': tstatus['skip'],
+                'captcha': tstatus['captcha'],
+                'noitems': tstatus['noitems'],
+                'fail': tstatus['fail'],
+                'success': tstatus['success']
+            }
 
-    overseer['active_accounts'] = usercount
+    overseer['active_accounts'] = active_count
 
     # Remove last status for accounts that workers
     # are not using anymore
@@ -762,7 +766,7 @@ def generate_hive_locations(current_location, step_distance,
 
 def search_worker_thread(args, account_queue, account_sets,
                          account_failures, account_captchas,
-                         search_items_queue, pause_bit, status, dbq, whq,
+                         search_items_queue, control_flags, status, dbq, whq,
                          scheduler, key_scheduler):
 
     log.debug('Search worker thread starting...')
@@ -778,6 +782,7 @@ def search_worker_thread(args, account_queue, account_sets,
                 dbq.put((WorkerStatus, {0: WorkerStatus.db_format(status)}))
 
             status['starttime'] = now()
+            status['active'] = False
 
             # Track per loop.
             first_login = True
@@ -819,8 +824,8 @@ def search_worker_thread(args, account_queue, account_sets,
 
             # The forever loop for the searches.
             while True:
-
-                while pause_bit.is_set():
+                status['active'] = True
+                while is_paused(control_flags):
                     status['message'] = 'Scanning paused.'
                     time.sleep(2)
 
@@ -904,7 +909,7 @@ def search_worker_thread(args, account_queue, account_sets,
                     first_loop = True
                     paused = False
                     while now() < appears + 10:
-                        if pause_bit.is_set():
+                        if is_paused(control_flags):
                             paused = True
                             break  # Why can't python just have `break 2`...
                         status['message'] = messages['early']
@@ -1099,7 +1104,7 @@ def search_worker_thread(args, account_queue, account_sets,
                             # API gets cranky about gyms that are ALMOST 1km
                             # away.)
                             if response['responses'][
-                                    'GYM_GET_INFO']['result'] == 2:
+                                    'GYM_GET_INFO'].result == 2:
                                 log.warning(
                                     ('Gym @ %f/%f is out of range (%dkm), ' +
                                      'skipping.'),
@@ -1172,6 +1177,7 @@ def search_worker_thread(args, account_queue, account_sets,
             log.error((
                 'Exception in search_worker under account {} Exception ' +
                 'message: {}.').format(account['username'], repr(e)))
+            status['active'] = False
             status['message'] = (
                 'Exception in search_worker using account {}. Restarting ' +
                 'with fresh account. See logs for details.').format(
@@ -1222,10 +1228,9 @@ def map_request(api, account, position, no_jitter=False):
         req.check_awarded_badges()
         req.get_buddy_walked()
         req.get_inbox(is_history=True)
-        response = req.call()
-
-        response = clear_dict_response(response, True)
+        response = req.call(False)
         parse_new_timestamp_ms(account, response)
+        response = clear_dict_response(response)
         return response
 
     except HashingOfflineException as e:
@@ -1256,7 +1261,7 @@ def gym_request(api, account, position, gym, api_version):
         req.check_awarded_badges()
         req.get_buddy_walked()
         req.get_inbox(is_history=True)
-        response = req.call()
+        response = req.call(False)
         parse_new_timestamp_ms(account, response)
         response = clear_dict_response(response)
         return response
@@ -1296,7 +1301,7 @@ def stat_delta(current_status, last_status, stat_name):
     return current_status.get(stat_name, 0) - last_status.get(stat_name, 0)
 
 
-def check_forced_version(args, api_check_time, pause_bit):
+def check_forced_version(args, api_check_time, api_watchdog_flag):
     if int(time.time()) > api_check_time:
         log.debug("Checking forced API version.")
         api_check_time = int(time.time()) + args.version_check_interval
@@ -1304,7 +1309,7 @@ def check_forced_version(args, api_check_time, pause_bit):
 
         if not forced_api:
             # Couldn't retrieve API version. Pause scanning.
-            pause_bit.set()
+            api_watchdog_flag.set()
             log.warning('Forced API check got no or invalid response. ' +
                         'Possible bad proxy.')
             log.warning('Scanner paused due to failed API check.')
@@ -1314,7 +1319,7 @@ def check_forced_version(args, api_check_time, pause_bit):
         try:
             if StrictVersion(args.api_version) < StrictVersion(forced_api):
                 # Installed API version is lower. Pause scanning.
-                pause_bit.set()
+                api_watchdog_flag.set()
                 log.warning('Started with API: %s, ' +
                             'Niantic forced to API: %s',
                             args.api_version,
@@ -1325,17 +1330,17 @@ def check_forced_version(args, api_check_time, pause_bit):
                 # installed API version is newer or equal forced API.
                 # Continue scanning.
                 log.debug("API check was successful. Continue scanning.")
-                pause_bit.clear()
+                api_watchdog_flag.clear()
 
         except ValueError as e:
             # Unknown version format. Pause scanning as well.
-            pause_bit.set()
+            api_watchdog_flag.set()
             log.warning('Niantic forced unknown API version format: %s.',
                         forced_api)
             log.warning('Scanner paused due to unknown API version format.')
         except Exception as e:
             # Something else happened. Pause scanning as well.
-            pause_bit.set()
+            api_watchdog_flag.set()
             log.warning('Unknown error on API version comparison: %s.',
                         repr(e))
             log.warning('Scanner paused due to unknown API check error.')
@@ -1378,3 +1383,10 @@ def get_api_version(args):
     except Exception as e:
         log.warning('error on API check: %s', repr(e))
         return False
+
+
+def is_paused(control_flags):
+    for flag in control_flags.values():
+        if flag.is_set():
+            return True
+    return False
