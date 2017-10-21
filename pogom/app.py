@@ -52,6 +52,7 @@ class Pogom(Flask):
         self.route("/raw_data", methods=['GET'])(self.raw_data)
         self.route("/loc", methods=['GET'])(self.loc)
         self.route("/next_loc", methods=['POST'])(self.next_loc)
+        self.route("/next_loc", methods=['GET'])(self.next_loc_via_url)
         self.route("/mobile", methods=['GET'])(self.list_pokemon)
         self.route("/search_control", methods=['GET'])(self.get_search_control)
         self.route("/search_control", methods=['POST'])(
@@ -490,6 +491,62 @@ class Pogom(Flask):
             self.set_current_location((lat, lon, 0))
             log.info('Changing next location: %s,%s', lat, lon)
             return self.loc()
+
+    def next_loc_via_url(self):
+        args = get_args()
+        if args.fixed_location:
+            return 'Location changes are turned off', 403
+        lat = None
+        lon = None
+        # Part of query string.
+        if request.args:
+            lat = request.args.get('lat', type=float)
+            lon = request.args.get('lon', type=float)
+        # From post requests.
+        if request.form:
+            lat = request.form.get('lat', type=float)
+            lon = request.form.get('lon', type=float)
+
+        if not (lat and lon):
+            log.warning('Invalid next location: %s,%s', lat, lon)
+            return 'bad parameters', 400
+        else:
+            self.location_queue.put((lat, lon, 0))
+            self.set_current_location((lat, lon, 0))
+            log.info('Changing next location: %s,%s', lat, lon)
+
+        self.heartbeat[0] = now()
+        args = get_args()
+        if args.on_demand_timeout > 0:
+            self.control_flags['on_demand'].clear()
+
+        search_display = True if (args.search_control and
+                                  args.on_demand_timeout <= 0) else False
+
+        scan_display = False if (args.only_server or args.fixed_location or
+                                 args.spawnpoint_scanning) else True
+
+        visibility_flags = {
+            'gyms': not args.no_gyms,
+            'pokemons': not args.no_pokemon,
+            'pokestops': not args.no_pokestops,
+            'raids': not args.no_raids,
+            'gym_info': args.gym_info,
+            'encounter': args.encounter,
+            'scan_display': scan_display,
+            'search_display': search_display,
+            'fixed_display': not args.fixed_location,
+            'custom_css': args.custom_css,
+            'custom_js': args.custom_js
+        }
+
+        return render_template('map.html',
+                               lat=lat,
+                               lng=lon,
+                               gmaps_key=config['GMAPS_KEY'],
+                               lang=config['LOCALE'],
+                               show=visibility_flags
+                               )
 
     def list_pokemon(self):
         # todo: Check if client is Android/iOS/Desktop for geolink, currently
