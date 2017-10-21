@@ -249,36 +249,6 @@
               </select>
             </div>
               {% endif %}
-            <div class="form-control switch-container">
-              <h3>Scanned Locations</h3>
-              <div class="onoffswitch">
-                <input id="scanned-switch" type="checkbox" name="scanned-switch" class="onoffswitch-checkbox">
-                <label class="onoffswitch-label" for="scanned-switch">
-                <span class="switch-label" data-on="On" data-off="Off"></span>
-                <span class="switch-handle"></span>
-                </label>
-              </div>
-            </div>
-            <div class="form-control switch-container">
-              <h3>Spawn Points</h3>
-              <div class="onoffswitch">
-                <input id="spawnpoints-switch" type="checkbox" name="spawnpoints-switch" class="onoffswitch-checkbox">
-                <label class="onoffswitch-label" for="spawnpoints-switch">
-                <span class="switch-label" data-on="On" data-off="Off"></span>
-                <span class="switch-handle"></span>
-                </label>
-              </div>
-            </div>
-            <div class="form-control switch-container">
-              <h3>Ranges</h3>
-              <div class="onoffswitch">
-                <input id="ranges-switch" type="checkbox" name="ranges-switch" class="onoffswitch-checkbox">
-                <label class="onoffswitch-label" for="ranges-switch">
-                <span class="switch-label" data-on="On" data-off="Off"></span>
-                <span class="switch-handle"></span>
-                </label>
-              </div>
-            </div>
               {% if show.pokemons %}
             <div class="form-control">
               <label for="exclude-pokemon">
@@ -295,32 +265,6 @@
 
           <div>
               {% if show.fixed_display %}
-            <div class="form-control switch-container">
-              <label for="next-location">
-              <h3>Change search location</h3>
-              <input id="next-location" type="text" name="next-location" placeholder="Change search location">
-              </label>
-            </div>
-            <div class="form-control switch-container">
-              <h3>Lock search marker</h3>
-              <div class="onoffswitch">
-                <input id="lock-marker-switch" type="checkbox" name="lock-marker-switch" class="onoffswitch-checkbox" checked/>
-                <label class="onoffswitch-label" for="lock-marker-switch">
-                <span class="switch-label" data-on="On" data-off="Off"></span>
-                <span class="switch-handle"></span>
-                </label>
-              </div>
-            </div>
-            <div class="form-control switch-container">
-              <h3>Search follows me</h3>
-              <div class="onoffswitch">
-                <input id="geoloc-switch" type="checkbox" name="geoloc-switch" class="onoffswitch-checkbox" checked/>
-                <label class="onoffswitch-label" for="geoloc-switch">
-                <span class="switch-label" data-on="On" data-off="Off"></span>
-                <span class="switch-handle"></span>
-                </label>
-              </div>
-            </div>
               {% endif %}
             <div class="form-control switch-container" >
               <h3>Start map at my position</h3>
