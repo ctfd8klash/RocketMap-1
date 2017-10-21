@@ -902,6 +902,10 @@ var StoreOptions = {
         default: 0,
         type: StoreTypes.Number
     },
+    'showLocation': {
+        default: '',
+        type: StoreTypes.String
+    },
     'showLastUpdatedGymsOnly': {
         default: 0,
         type: StoreTypes.Number
@@ -995,11 +999,11 @@ var StoreOptions = {
         type: StoreTypes.JSON
     },
     'searchMarkerStyle': {
-        default: 'pokesition',
+        default: 'none',   //jmk
         type: StoreTypes.String
     },
     'locationMarkerStyle': {
-        default: 'mobile',
+        default: 'google',    //jmk
         type: StoreTypes.String
     },
     'zoomLevel': {
