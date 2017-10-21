@@ -1134,8 +1134,15 @@ def search_worker_thread(args, account_queue, account_sets, account_failures,
                                     'skipping.', gym['latitude'],
                                     gym['longitude'], distance)
                             else:
+# jmk
                                 gym_responses[gym['gym_id']] = response[
                                     'responses']['GYM_GET_INFO']
+                                try:
+                                    record = GymDetails.get(gym_id=gym['gym_id'])
+                                    gym_responses[gym['gym_id']].name = record.name
+                                except GymDetails.DoesNotExist:
+                                    pass
+# jmk
                             del response
                             # Increment which gym we're on for status messages.
                             current_gym += 1
