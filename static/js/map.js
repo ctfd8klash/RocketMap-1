@@ -14,6 +14,7 @@ var $switchRaidMinLevel
 var $switchRaidMaxLevel
 var $switchRaidPokemon
 var $selectTeamGymsOnly
+var $selectLocation
 var $selectLastUpdateGymsOnly
 var $selectMinGymLevel
 var $selectMaxGymLevel
@@ -258,7 +259,7 @@ function initMap() { // eslint-disable-line no-unused-vars
         }, 500)
     })
 
-    searchMarker = createSearchMarker()
+//    searchMarker = createSearchMarker()
     locationMarker = createLocationMarker()
     createMyLocationButton()
     initSidebar()
@@ -405,11 +406,14 @@ function updateSearchStatus() {
 }
 
 function initSidebar() {
+    Store.set('showLocation', true)   // jmk
+    Store.set('searchMarkerStyle', 'none')   //jmk
     $('#gyms-switch').prop('checked', Store.get('showGyms'))
     $('#gym-sidebar-switch').prop('checked', Store.get('useGymSidebar'))
     $('#gym-sidebar-wrapper').toggle(Store.get('showGyms'))
     $('#gyms-filter-wrapper').toggle(Store.get('showGyms'))
     $('#team-gyms-only-switch').val(Store.get('showTeamGymsOnly'))
+    $('#location-switch').val(Store.get('showLocation'))
     $('#raids-switch').prop('checked', Store.get('showRaids'))
     $('#raid-active-gym-switch').prop('checked', Store.get('showActiveRaidsOnly'))
     $('#raid-min-level-only-switch').val(Store.get('showRaidMinLevel'))
@@ -2042,7 +2046,8 @@ function changeLocation(lat, lng) {
     var loc = new google.maps.LatLng(lat, lng)
     changeSearchLocation(lat, lng).done(function () {
         map.setCenter(loc)
-        searchMarker.setPosition(loc)
+        locationMarker.setPosition(loc)
+//        searchMarker.setPosition(loc)
     })
 }
 
@@ -2460,6 +2465,20 @@ $(function () {
         updateMap()
     })
 
+    $selectLocation = $('#location-switch')
+
+    $selectLocation.select2({
+        placeholder: 'Choose a location',
+        minimumResultsForSearch: Infinity
+    })
+
+    $selectLocation.on('change', function () {
+        Store.set('showLocation', this.value)
+        lastgyms = false
+
+        changeLocation(this.value.substring(5,14), this.value.substring(19,29))
+//        window.location.href=Store.get('showLocation');
+    })
     $selectLastUpdateGymsOnly = $('#last-update-gyms-switch')
 
     $selectLastUpdateGymsOnly.select2({
@@ -2530,7 +2549,7 @@ $(function () {
         updateMap()
     })
 
-    $selectSearchIconMarker = $('#iconmarker-style')
+//    $selectSearchIconMarker = $('#iconmarker-style')
     $selectLocationIconMarker = $('#locationmarker-style')
 
     $.getJSON('static/dist/data/searchmarkerstyle.min.json').done(function (data) {
@@ -2544,21 +2563,21 @@ $(function () {
             })
         })
 
-        $selectSearchIconMarker.select2({
-            placeholder: 'Select Icon Marker',
-            data: searchMarkerStyleList,
-            minimumResultsForSearch: Infinity
-        })
+//        $selectSearchIconMarker.select2({
+//            placeholder: 'Select Icon Marker',
+//            data: searchMarkerStyleList,
+//            minimumResultsForSearch: Infinity
+//        })
 
-        $selectSearchIconMarker.on('change', function (e) {
-            var selectSearchIconMarker = $selectSearchIconMarker.val()
-            Store.set('searchMarkerStyle', selectSearchIconMarker)
-            updateSearchMarker(selectSearchIconMarker)
-        })
+//        $selectSearchIconMarker.on('change', function (e) {
+//            var selectSearchIconMarker = $selectSearchIconMarker.val()
+//            Store.set('searchMarkerStyle', selectSearchIconMarker)
+//            updateSearchMarker(selectSearchIconMarker)
+//        })
 
-        $selectSearchIconMarker.val(Store.get('searchMarkerStyle')).trigger('change')
+//        $selectSearchIconMarker.val(Store.get('searchMarkerStyle')).trigger('change')
 
-        updateSearchMarker(Store.get('lockMarker'))
+//        updateSearchMarker(Store.get('lockMarker'))
 
         $selectLocationIconMarker.select2({
             placeholder: 'Select Location Marker',
