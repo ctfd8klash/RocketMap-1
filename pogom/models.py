@@ -25,6 +25,7 @@ from cachetools import TTLCache
 from cachetools import cached
 from timeit import default_timer
 
+from pogom.pgscout import pgscout_encounter
 from .utils import (get_pokemon_name, get_pokemon_rarity, get_pokemon_types,
                     get_args, cellid, in_radius, date_secs, clock_between,
                     get_move_name, get_move_damage, get_move_energy,
@@ -1851,6 +1852,32 @@ def hex_bounds(center, steps=None, radius=None):
     return (n, e, s, w)
 
 
+def perform_pgscout(p):
+    pokemon_id = p.pokemon_data.pokemon_id
+    pokemon_name = get_pokemon_name(pokemon_id)
+    log.info(u"PGScouting a {} at {}, {}.".format(pokemon_name, p.latitude,
+                                                  p.longitude))
+
+    # Prepare Pokemon object
+    pkm = Pokemon()
+    pkm.pokemon_id = pokemon_id
+    pkm.encounter_id = b64encode(str(p.encounter_id))
+    pkm.spawnpoint_id = p.spawn_point_id
+    pkm.latitude = p.latitude
+    pkm.longitude = p.longitude
+    scout_result = pgscout_encounter(pkm)
+    if scout_result['success']:
+        log.info(
+            u"Successfully PGScouted a {:.1f}% lvl {} {} with {} CP"
+            u" (scout level {}).".format(
+                scout_result['iv_percent'], scout_result['level'],
+                pokemon_name, scout_result['cp'], scout_result['scout_level']))
+    else:
+        log.warning(u"Failed PGScouting {}: {}".format(pokemon_name,
+                                                       scout_result['error']))
+    return scout_result
+
+
 # todo: this probably shouldn't _really_ be in "models" anymore, but w/e.
 def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue,
               key_scheduler, api, status, now_date, account, account_sets):
@@ -2030,9 +2057,14 @@ def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue,
 
             # Scan for IVs/CP and moves.
             pokemon_info = False
+            scout_result = False
             if args.encounter and (pokemon_id in args.enc_whitelist):
-                pokemon_info = encounter_pokemon(
-                    args, p, account, api, account_sets, status, key_scheduler)
+                if args.pgscout_url and level < 30:
+                    scout_result = perform_pgscout(p)
+                else:
+                    pokemon_info = encounter_pokemon(args, p, account, api,
+                                                     account_sets, status,
+                                                     key_scheduler)
 
             pokemon[p.encounter_id] = {
                 'encounter_id': b64encode(str(p.encounter_id)),
@@ -2059,8 +2091,21 @@ def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue,
                 pokemon[p.encounter_id]['form'] = (p.pokemon_data
                                                     .pokemon_display.form)
 
+            # Updating Pokemon data from PGScout result
+            if scout_result and scout_result['success']:
+                pokemon[p.encounter_id].update({
+                    'individual_attack': scout_result['iv_attack'],
+                    'individual_defense': scout_result['iv_defense'],
+                    'individual_stamina': scout_result['iv_stamina'],
+                    'move_1': scout_result['move_1'],
+                    'move_2': scout_result['move_2'],
+                    'height': scout_result['height'],
+                    'weight': scout_result['weight'],
+                    'cp': scout_result['cp'],
+                    'cp_multiplier': scout_result['cp_multiplier'],
+                })
             # We need to check if exist and is not false due to a request error
-            if pokemon_info:
+            elif pokemon_info:
                 pokemon[p.encounter_id].update({
                     'individual_attack': pokemon_info.individual_attack,
                     'individual_defense': pokemon_info.individual_defense,
