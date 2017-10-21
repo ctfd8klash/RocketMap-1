@@ -1816,7 +1816,7 @@ class HashKeys(BaseModel):
                  .where(HashKeys.key == key)
                  .dicts())
 
-        return query[0] if query else {
+        return {
             'maximum': 0,
             'remaining': 0,
             'peak': 0,
