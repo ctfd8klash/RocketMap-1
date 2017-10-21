@@ -14,9 +14,12 @@ $(function () {
     ]
 
     // Clustering! Different zoom levels for desktop vs mobile.
-    const disableClusters = true // Default: false
+    const scaleByRarity = false // Enable scaling by rarity. Default: true.
+    const upscalePokemon = false // Enable upscaling of certain Pokemon (upscaledPokemon and notify list). Default: false.
+    const upscaledPokemon = [] // Add Pokémon IDs separated by commas (e.g. [1, 2, 3]) to upscale icons.
+    const disableClusters = false // Default: false
     const maxClusterZoomLevel = 10 // Default: 14  //jmk
-    const maxClusterZoomLevelMobile = 10 // Default: same as desktop  //jmk
+    const maxClusterZoomLevelMobile = 12 // Default: same as desktop  //jmk
     const clusterZoomOnClick = false // Default: false
     const clusterZoomOnClickMobile = false // Default: same as desktop
     const clusterGridSize = 60 // Default: 60
@@ -56,7 +59,9 @@ $(function () {
     Store.set('clusterGridSize', clusterGridSize)
     Store.set('processPokemonChunkSize', processPokemonChunkSize)
     Store.set('processPokemonIntervalMs', processPokemonIntervalMs)
-
+    Store.set('scaleByRarity', scaleByRarity)
+    Store.set('upscalePokemon', upscalePokemon)
+    Store.set('upscaledPokemon', upscaledPokemon)
     if (typeof window.orientation !== "undefined" || isMobileDevice()) {
         Store.set('maxClusterZoomLevel', maxClusterZoomLevelMobile)
         Store.set('clusterZoomOnClick', clusterZoomOnClickMobile)
