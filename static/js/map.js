@@ -1344,7 +1344,7 @@ function clearStaleMarkers() {
 
     $.each(mapData.pokemons, function (key, value) {
         const isPokeExpired = mapData.pokemons[key]['disappear_time'] < Date.now()
-        const isPokeExcluded = (excludedPokemon.indexOf(mapData.pokemons[key]['pokemon_id']) !== -1) || (mapData.pokemons[key]['pokemon_id'] === 16)
+        const isPokeExcluded = (excludedPokemon.indexOf(mapData.pokemons[key]['pokemon_id']) !== -1) || (mapData.pokemons[key]['pokemon_id'] === 16) || (mapData.pokemons[key]['pokemon_id'] === 355) || (mapData.pokemons[key]['pokemon_id'] === 353)
 
         if (isPokeExpired || isPokeExcluded) {
             const oldMarker = mapData.pokemons[key].marker
@@ -1584,7 +1584,7 @@ function processPokemonChunked(pokemon, chunkSize) {
 }
 
 function processPokemon(item) {
-    const isExcludedPoke = (excludedPokemon.indexOf(item['pokemon_id']) !== -1) || (item['pokemon_id'] === 16)
+    const isExcludedPoke = (excludedPokemon.indexOf(item['pokemon_id']) !== -1) || (item['pokemon_id'] === 16) || (item['pokemon_id'] === 355) || (item['pokemon_id'] === 353)
     const isPokeAlive = item['disappear_time'] > Date.now()
 
     var oldMarker = null
