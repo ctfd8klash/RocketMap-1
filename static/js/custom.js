@@ -17,7 +17,7 @@ $(function () {
     const scaleByRarity = false // Enable scaling by rarity. Default: true.
     const upscalePokemon = false // Enable upscaling of certain Pokemon (upscaledPokemon and notify list). Default: false.
     const upscaledPokemon = [] // Add Pokémon IDs separated by commas (e.g. [1, 2, 3]) to upscale icons.
-    const disableClusters = false // Default: false
+    const disableClusters = true // Default: false
     const maxClusterZoomLevel = 10 // Default: 14  //jmk
     const maxClusterZoomLevelMobile = 12 // Default: same as desktop  //jmk
     const clusterZoomOnClick = false // Default: false
