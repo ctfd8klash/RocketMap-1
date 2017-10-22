@@ -9,6 +9,7 @@ import gc
 import time
 import geopy
 import math
+import random
 
 from peewee import (InsertQuery, Check, CompositeKey, ForeignKeyField,
                     SmallIntegerField, IntegerField, CharField, DoubleField,
@@ -2051,6 +2052,13 @@ def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue,
                 log.debug('Ignoring Pokemon id: %i.', pokemon_id)
                 filtered += 1
                 continue
+
+            #80% change of filtering
+            if args.ignoremaybe_file and pokemon_id in args.maybelist:
+                if random.random() < 0.80:
+                    log.debug('Ignoring Pokemon id: %i.', pokemon_id)
+                    filtered += 1
+                    continue
 
             printPokemon(pokemon_id, p.latitude, p.longitude,
                          disappear_time)

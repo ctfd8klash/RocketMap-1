@@ -191,6 +191,9 @@ def get_args():
                         'Spawnpoints will be saved, but ignored ' +
                         'Pokemon won\'t be encountered, sent to ' +
                         'webhooks or saved to the DB.')
+    parser.add_argument('-igmaybe', '--ignoremaybe-file',
+                        default='', help='Just like the ignore list except that ' +
+                        'Pokemon will be encountered a percentage of the time')
     parser.add_argument('-encwf', '--enc-whitelist-file',
                         default='', help='File containing a list of '
                         'Pokemon IDs or names to encounter for'
@@ -781,6 +784,11 @@ def get_args():
             with open(args.ignorelist_file) as f:
                 args.ignorelist = frozenset([int(l.strip()) for l in f])
 
+        args.maybelist = []
+        if args.ignoremaybe_file:
+            with open(args.ignoremaybe_file) as f:
+                args.maybelist = frozenset([int(l.strip()) for l in f])
+
         # Decide which scanning mode to use.
         if args.spawnpoint_scanning:
             args.scheduler = 'SpawnScan'
@@ -1198,6 +1206,7 @@ def _censor_args_namespace(args, censored_tag):
         'geofence_file',
         'geofence_excluded_file',
         'ignorelist_file',
+        'maybelist_file',
         'enc_whitelist_file',
         'webhook_whitelist_file',
         'webhook_blacklist_file',
