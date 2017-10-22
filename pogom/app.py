@@ -543,8 +543,8 @@ class Pogom(Flask):
         return render_template('map.html',
                                lat=lat,
                                lng=lon,
-                               gmaps_key=config['GMAPS_KEY'],
-                               lang=config['LOCALE'],
+                               gmaps_key=args.gmaps_key,
+                               lang=args.locale,
                                show=visibility_flags
                                )
 
