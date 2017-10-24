@@ -28,7 +28,7 @@ def pgscout_encounter(p):
         'longitude': p.longitude
     }
     try:
-        r = requests.get(args.pgscout_url, params=params, timeout=10)
+        r = requests.get(args.pgscout_url, params=params, timeout=90)
     except:
         return scout_error(
             "Exception on scout: {}".format(repr(sys.exc_info()[1])))
