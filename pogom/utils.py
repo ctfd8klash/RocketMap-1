@@ -194,6 +194,10 @@ def get_args():
     parser.add_argument('-igmaybe', '--ignoremaybe-file',
                         default='', help='Just like the ignore list except that ' +
                         'Pokemon will be encountered a percentage of the time')
+    parser.add_argument('-igmper', '--ignore-maybe-percentage',
+                        help=('Percent change 0.0 to 1.0' +
+                              'of ignoring pokemon in the --ignoremaybe-file'),
+                        type=float, default=0.20)
     parser.add_argument('-encwf', '--enc-whitelist-file',
                         default='', help='File containing a list of '
                         'Pokemon IDs or names to encounter for'
