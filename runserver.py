@@ -272,6 +272,8 @@ def main():
         log.info('Parsing of Gyms disabled.')
     if args.encounter:
         log.info('Encountering pokemon enabled.')
+    if args.ignoremaybe_file:
+        log.info('Ignoring these pokemon sometimes %s', args.maybelist)
 
     app = None
     if not args.no_server and not args.clear_db:

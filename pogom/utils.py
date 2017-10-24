@@ -791,8 +791,6 @@ def get_args():
         if args.ignoremaybe_file:
             with open(args.ignoremaybe_file) as f:
                 args.maybelist = frozenset([tuple(map(int, l.split())) for l in f])
-        log.info('Ignoring these pokemon sometimes %s',
-                 args.maybelist)
 
         # Decide which scanning mode to use.
         if args.spawnpoint_scanning:
