@@ -790,7 +790,7 @@ def get_args():
         args.maybelist = []
         if args.ignoremaybe_file:
             with open(args.ignoremaybe_file) as f:
-                args.maybelist = frozenset([tuple(map(int, l.split())) for l in f])
+                args.maybelist = [tuple(map(int, l.split())) for l in f]
 
         # Decide which scanning mode to use.
         if args.spawnpoint_scanning:
