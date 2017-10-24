@@ -2053,10 +2053,10 @@ def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue,
                 filtered += 1
                 continue
 
-            #% chance of filtering.  default 20%
-            if args.ignoremaybe_file and pokemon_id in args.maybelist:
-                if random.random() > args.ignore_maybe_percentage:
-                    log.debug('Ignoring Pokemon id: %i.', pokemon_id)
+            #% chance of ignoring a pokemon, specified per individual pokemon in file
+            if args.ignoremaybe_file and any(poke[0] == pokemon_id for poke in args.maybelist):
+                if randint(1, 100) <= args.maybelist[[x[0] for x in feed].index(pokemon_id)][1]:
+                    log.info('Ignoring Pokemon id: %i with odds of %i', pokemon_id, args.maybelist[[x[0] for x in feed].index(pokemon_id)][1])
                     filtered += 1
                     continue
 

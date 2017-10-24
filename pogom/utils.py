@@ -193,11 +193,8 @@ def get_args():
                         'webhooks or saved to the DB.')
     parser.add_argument('-igmaybe', '--ignoremaybe-file',
                         default='', help='Just like the ignore list except that ' +
-                        'Pokemon will be encountered a percentage of the time')
-    parser.add_argument('-igmper', '--ignore-maybe-percentage',
-                        help=('Percent change 0.0 to 1.0' +
-                              'of ignoring pokemon in the --ignoremaybe-file'),
-                        type=float, default=0.20)
+                        'Pokemon will be ignored a percentage of the time, ' +
+                        'which is specified as integer from 0-100 in 2nd column')
     parser.add_argument('-encwf', '--enc-whitelist-file',
                         default='', help='File containing a list of '
                         'Pokemon IDs or names to encounter for'
@@ -788,10 +785,14 @@ def get_args():
             with open(args.ignorelist_file) as f:
                 args.ignorelist = frozenset([int(l.strip()) for l in f])
 
+        # each line in file contains:
+        #    pokemon_name    odds_of_ignoring
         args.maybelist = []
         if args.ignoremaybe_file:
             with open(args.ignoremaybe_file) as f:
-                args.maybelist = frozenset([int(l.strip()) for l in f])
+                args.maybelist = frozenset([map(int, str.split()) for l in f])
+        log.info('Ignoring these pokemon sometimes %s',
+                 args.maybelist)
 
         # Decide which scanning mode to use.
         if args.spawnpoint_scanning:
