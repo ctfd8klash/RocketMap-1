@@ -981,7 +981,7 @@ function getNotifyText(item) {
     var find = ['<prc>', '<pkm>', '<atk>', '<def>', '<sta>', '<lvl>']
     var pokemonlevel = (item['cpMultiplier'] !== null) ? getPokemonLevel(item['cpMultiplier']) : 0
     var replace = [((iv) ? iv.toFixed(1) : ''), item['pokemon_name'], item['individual_attack'],
-        item['individual_defense'], item['individual_stamina'], ${pokemonLevel}]
+        item['individual_defense'], item['individual_stamina'], pokemonlevel]
     var ntitle = repArray(((iv) ? notifyIvTitle : notifyNoIvTitle), find, replace)
     var dist = moment(item['disappear_time']).format('HH:mm:ss')
     var until = getTimeUntil(item['disappear_time'])
