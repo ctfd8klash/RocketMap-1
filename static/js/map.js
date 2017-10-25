@@ -84,7 +84,7 @@ const unownForm = ['unset', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K
  <def> - defense as number
  <sta> - stamnia as number
  */
-var notifyIvTitle = '<pkm> <prc>% (<atk>/<def>/<sta>)'
+var notifyIvTitle = '<pkm> <prc>% (<atk>/<def>/<sta>) (L<lvl>)'
 var notifyNoIvTitle = '<pkm>'
 
 /*
@@ -978,9 +978,10 @@ function getTimeUntil(time) {
 
 function getNotifyText(item) {
     var iv = getIv(item['individual_attack'], item['individual_defense'], item['individual_stamina'])
-    var find = ['<prc>', '<pkm>', '<atk>', '<def>', '<sta>']
+    var find = ['<prc>', '<pkm>', '<atk>', '<def>', '<sta>', '<lvl>']
+    var pokemonlevel = (item['cpMultiplier'] !== null) ? getPokemonLevel(item['cpMultiplier']) : 0
     var replace = [((iv) ? iv.toFixed(1) : ''), item['pokemon_name'], item['individual_attack'],
-        item['individual_defense'], item['individual_stamina']]
+        item['individual_defense'], item['individual_stamina'], pokemonlevel]
     var ntitle = repArray(((iv) ? notifyIvTitle : notifyNoIvTitle), find, replace)
     var dist = moment(item['disappear_time']).format('HH:mm:ss')
     var until = getTimeUntil(item['disappear_time'])
