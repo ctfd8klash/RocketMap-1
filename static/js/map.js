@@ -979,7 +979,7 @@ function getTimeUntil(time) {
 function getNotifyText(item) {
     var iv = getIv(item['individual_attack'], item['individual_defense'], item['individual_stamina'])
     var find = ['<prc>', '<pkm>', '<atk>', '<def>', '<sta>', '<lvl>']
-    var pokemonlevel = (item['cpMultiplier'] !== null) ? getPokemonLevel(item['cpMultiplier']) : 0
+    var pokemonlevel = (item['cp_multiplier'] !== null) ? getPokemonLevel(item['cp_multiplier']) : 0
     var replace = [((iv) ? iv.toFixed(1) : ''), item['pokemon_name'], item['individual_attack'],
         item['individual_defense'], item['individual_stamina'], pokemonlevel]
     var ntitle = repArray(((iv) ? notifyIvTitle : notifyNoIvTitle), find, replace)
