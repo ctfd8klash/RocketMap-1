@@ -491,6 +491,46 @@ function getDateStr(t) {
     return dateStr
 }
 
+function checkiv(encounterId) { // eslint-disable-line no-unused-vars
+    var infoEl = $('#checkivInfo' + atob(encounterId))
+
+    $.ajax({
+        url: 'scout',
+        type: 'GET',
+        data: {
+            'encounter_id': encounterId
+        },
+        dataType: 'json',
+        cache: false,
+        beforeSend: function () {
+            infoEl.text('Checking IV, please wait...')
+            infoEl.show()
+        },
+        error: function () {
+            infoEl.text('Error checking IV, try again?')
+        },
+        success: function (data, textStatus, jqXHR) {
+            if (data.success) {
+                // update local values
+                var pkm = mapData.pokemons[encounterId]
+                pkm['individual_attack'] = data.iv_attack
+                pkm['individual_defense'] = data.iv_defense
+                pkm['individual_stamina'] = data.iv_stamina
+                pkm['move_1'] = data.move_1
+                pkm['move_2'] = data.move_2
+                pkm['weight'] = data.weight
+                pkm['height'] = data.height
+                pkm['gender'] = data.gender
+                pkm['cp'] = data.cp
+                pkm['cp_multiplier'] = data.cp_multiplier
+                pkm.marker.infoWindow.setContent(pokemonLabel(pkm))
+            } else {
+                infoEl.text(data.error)
+            }
+        }
+    })
+}
+
 function pokemonLabel(item) {
     var name = item['pokemon_name']
     var rarityDisplay = item['pokemon_rarity'] ? '(' + item['pokemon_rarity'] + ')' : ''
@@ -512,6 +552,7 @@ function pokemonLabel(item) {
     var form = item['form']
     var cp = item['cp']
     var cpMultiplier = item['cp_multiplier']
+    var encounterIdLong = atob(encounterId)
 
     $.each(types, function (index, type) {
         typesDisplay += getTypeSpan(type)
@@ -579,6 +620,7 @@ function pokemonLabel(item) {
             <span class='pokemon links exclude'><a href='javascript:excludePokemon(${id})'>Exclude</a></span>
             <span class='pokemon links notify'><a href='javascript:notifyAboutPokemon(${id})'>Notify</a></span>
             <span class='pokemon links remove'><a href='javascript:removePokemonMarker("${encounterId}")'>Remove</a></span>
+            <span class='pokemon links check_iv'><a href='javascript:checkiv("${encounterId}")'>Check IV</a></span>
           </div>
       </div>
       <div class='pokemon container content-right'>
@@ -598,6 +640,7 @@ function pokemonLabel(item) {
           <div>
             <span class='pokemon navigate'><a href='javascript:void(0);' onclick='javascript:openMapDirections(${latitude},${longitude});' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a></span>
           </div>
+          <div id='checkivInfo${encounterIdLong}' class='pokemon checkivinfo'></div>
       </div>
     </div>
   </div>`
