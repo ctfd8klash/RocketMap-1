@@ -614,14 +614,14 @@ function pokemonLabel(item) {
     } else {
         contentstring += `
       <div class='pokemon container'>
-        <div class='pokemon container content-left'>
+        <div     class='pokemon container content-left'>
           <div>
             <img class='pokemon sprite' src='static/icons/${id}.png'>
             <span class='pokemon'>Level: </span><span class='pokemon no-encounter'>n/a</span>
             <span class='pokemon links exclude'><a href='javascript:excludePokemon(${id})'>Exclude</a></span>
             <span class='pokemon links notify'><a href='javascript:notifyAboutPokemon(${id})'>Notify</a></span>
             <span class='pokemon links remove'><a href='javascript:removePokemonMarker("${encounterId}")'>Remove</a></span>
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class='pokemon links checkiv'><a href='javascript:checkiv("${encounterId}")'>Check IV</a></span>
+            <span class='pokemon links checkiv'><a href='javascript:checkiv("${encounterId}")'>Check IV</a></span>
           </div>
       </div>
       <div class='pokemon container content-right'>
