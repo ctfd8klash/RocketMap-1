@@ -82,7 +82,7 @@ class Pogom(Flask):
                                                               p.longitude))
             scout_result = pgscout_encounter(p, 1)
             if scout_result['success']:
-                self.update_scouted_pokemon(p, scout_result)
+#broken                self.update_scouted_pokemon(p, scout_result)
                 log.info(
                     u"Successfully PGScouted a {:.1f}% lvl {} {} with {} CP"
                     u" (scout level {}).".format(
@@ -125,7 +125,7 @@ class Pogom(Flask):
                 'rating_defense': response['rating_defense']
             }
         }
-        self.db_update_queue.put((Pokemon, update_data))
+        self.db_updates_queue.put((Pokemon, update_data))
 
     def render_robots_txt(self):
         return render_template('robots.txt')
@@ -192,8 +192,8 @@ class Pogom(Flask):
 
         return start <= dottedQuadToNum(ip) <= end
 
-#    def set_db_updates_queue(self, db_updates_queue):
-#        self.db_updates_queue = db_updates_queue
+    def set_db_updates_queue(self, db_updates_queue):
+        self.db_updates_queue = db_updates_queue
 
     def set_control_flags(self, control):
         self.control_flags = control
