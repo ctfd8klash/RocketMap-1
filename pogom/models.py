@@ -1866,7 +1866,7 @@ def perform_pgscout(p):
     pkm.spawnpoint_id = p.spawn_point_id
     pkm.latitude = p.latitude
     pkm.longitude = p.longitude
-    scout_result = pgscout_encounter(pkm)
+    scout_result = pgscout_encounter(pkm, 0)
     if scout_result['success']:
         log.info(
             u"Successfully PGScouted a {:.1f}% lvl {} {} with {} CP"

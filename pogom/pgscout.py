@@ -16,7 +16,7 @@ def scout_error(error_msg):
     }
 
 
-def pgscout_encounter(p):
+def pgscout_encounter(p, force):
     args = get_args()
 
     # Assemble PGScout request
@@ -25,7 +25,8 @@ def pgscout_encounter(p):
         'encounter_id': p.encounter_id,
         'spawn_point_id': p.spawnpoint_id,
         'latitude': p.latitude,
-        'longitude': p.longitude
+        'longitude': p.longitude,
+        'force': force
     }
     try:
         r = requests.get(args.pgscout_url, params=params, timeout=90)

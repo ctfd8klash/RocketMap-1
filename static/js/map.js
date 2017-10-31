@@ -498,8 +498,7 @@ function checkiv(encounterId) { // eslint-disable-line no-unused-vars
         url: 'scout',
         type: 'GET',
         data: {
-            'encounter_id': encounterId,
-            'force': 1
+            'encounter_id': encounterId
         },
         dataType: 'json',
         cache: false,
