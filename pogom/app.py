@@ -94,7 +94,7 @@ class Pogom(Flask):
                                                                scout_result[
                                                                    'error']))
         else:
-            scout_result = scout_error("PGScout URL not configured.")
+            scout_result = scout_error("Check IV URL not configured.")
         return jsonify(scout_result)
 
     def update_scouted_pokemon(self, p, response):
