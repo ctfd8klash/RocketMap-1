@@ -125,7 +125,7 @@ class Pogom(Flask):
                 'rating_defense': response['rating_defense']
             }
         }
-        self.db_updates_queue.put((Pokemon, update_data))
+        self.db_update_queue.put((Pokemon, update_data))
 
     def render_robots_txt(self):
         return render_template('robots.txt')
@@ -192,8 +192,8 @@ class Pogom(Flask):
 
         return start <= dottedQuadToNum(ip) <= end
 
-    def set_db_updates_queue(self, db_updates_queue):
-        self.db_updates_queue = db_updates_queue
+#    def set_db_updates_queue(self, db_updates_queue):
+#        self.db_updates_queue = db_updates_queue
 
     def set_control_flags(self, control):
         self.control_flags = control
