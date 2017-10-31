@@ -621,7 +621,7 @@ function pokemonLabel(item) {
             <span class='pokemon links exclude'><a href='javascript:excludePokemon(${id})'>Exclude</a></span>
             <span class='pokemon links notify'><a href='javascript:notifyAboutPokemon(${id})'>Notify</a></span>
             <span class='pokemon links remove'><a href='javascript:removePokemonMarker("${encounterId}")'>Remove</a></span>
-            <span class='pokemon links check_iv'><a href='javascript:checkiv("${encounterId}")'>&nbsp;&nbsp;Check IV</a></span>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class='pokemon links checkiv'><a href='javascript:checkiv("${encounterId}")'>Check IV</a></span>
           </div>
       </div>
       <div class='pokemon container content-right'>
