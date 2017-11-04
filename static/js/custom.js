@@ -275,7 +275,7 @@ function show_raid(location)
         case 'jv'        : locinfo = ['Jersey Village',     'raid_jerseyvillage.txt']; break;
         case 'ff'        : locinfo = ['Fairfield Raids',    'raid_fairfield.txt'    ]; break;
         case 'north'     : locinfo = ['North Tomball',      'raid_4corners.txt'     ]; break;
-        case 'raikou'    : locinfo = ['Entei Raids',        'raid_raikou.txt'       ]; break;
+        case 'raikou'    : locinfo = ['Suicine Raids',      'raid_raikou.txt'       ]; break;
     }
     
     if (isMobileDevice()) {
