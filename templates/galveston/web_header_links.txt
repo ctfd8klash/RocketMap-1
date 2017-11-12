@@ -1,0 +1,1 @@
+<h1><a title="Donate" href="javascript:showSplash();"> <span id="saldo"></span> Donate $</a> | <a title="Galveston Raids" href="javascript:show_raid('galveston');">Raid List</a> </h1>

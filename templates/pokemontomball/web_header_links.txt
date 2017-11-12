@@ -1,0 +1,88 @@
+<style>
+.dropbtn {
+    margin: 0 0 0 0;
+//    background-color: #4CAF50;
+    color: white;
+    font-size: 1.25em;
+    height: 1.50em;
+    line-height: 1.50em;
+    padding: 2px 10px 2px 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    font-size: 0.8em;
+    line-height: 3.0em;
+    min-width: 160px;
+    box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 1px 16px;
+    text-decoration: none;
+    white-space: nowrap;
+    width: 100%;
+    display: inline-block;
+}
+
+.dropdown-content a:hover {background-color: #ddd}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+}
+</style>
+
+        <h1><a title="Message of the Day" href="javascript:showSplash2();"><img class='rocket icon' src='static/images/rocket.png'></a></h1>
+        <h1><a title="Donate" href="javascript:showSplash();"> <span id="saldo"></span>$ |</a> 
+
+        
+<div class="dropdown">
+  <button class="dropbtn">Raids</button>
+  <div class="dropdown-content">
+    <a href="javascript:show_raid('raikou');">Suicine</a>
+    <a href="javascript:show_raid('ttar');">Ttar/Machamp</a>
+    <a href="javascript:show_raid('vintage');">Vintage Park</a>
+    <a href="javascript:show_raid('woodlands');">Woodlands</a>
+    <a href="javascript:show_raid('spring');">Old Town Spring</a>
+    <a href="javascript:show_raid('jv');">Jersey Village</a>
+    <a href="javascript:show_raid('ff');">Fairfield</a>
+    <a href="javascript:show_raid('north');">4-Corners</a>
+    <a href="javascript:show_raid('magnolia');">Magnolia</a>
+  </div>
+</div>
+           
+<div class="dropdown">
+  <button class="dropbtn">Locations</button>
+  <div class="dropdown-content">
+                  <a href="?lat=29.987767&lon=-95.498513">Champions (1960 & Veterans)</a>
+                  <a href="?lat=29.998614&lon=-95.734852">Fairfield</a>
+                  <a href="?lat=29.882420&lon=-95.555508">Jersey Village</a>
+                  <a href="?lat=30.209007&lon=-95.750283">Magnolia</a>
+                  <a href="?lat=30.007729&lon=-95.520800">Meyer Park</a>
+                  <a href="?lat=30.097630&lon=-95.635875">North Tomball 4-Corners</a>
+                  <a href="?lat=30.036272&lon=-95.604581">Northpointe (249 & 99)</a>
+                  <a href="?lat=30.079125&lon=-95.421488">Old Town Spring</a>
+                  <a href="?lat=29.996600&lon=-95.579853">Vintage Park</a>
+                  <a href="?lat=29.961865&lon=-95.546308">Willowbrook Mall</a>
+                  <a href="?lat=30.162501&lon=-95.461409">Woodlands</a>
+  </div>
+</div>
+
+  </h1>
+
