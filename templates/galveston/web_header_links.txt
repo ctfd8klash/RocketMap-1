@@ -1,5 +1,55 @@
+<style>
+.dropbtn {
+    margin: 0 0 0 0;
+//    background-color: #4CAF50;
+    color: white;
+    font-size: 1.00em;
+    height: 1.50em;
+    line-height: 1.50em;
+    padding: 2px 10px 2px 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    font-size: 0.8em;
+    line-height: 2.0em;
+    min-width: 160px;
+    box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 1px 16px;
+    text-decoration: none;
+    white-space: nowrap;
+    width: 100%;
+    display: inline-block;
+}
+
+.dropdown-content a:hover {background-color: #ddd}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+}
+</style>
+
         <h1><a title="Message of the Day" href="javascript:showSplash2();"><img class='rocket icon' src='static/images/houstonmapcircle.png'></a></h1>
-        <h1>&nbsp;<a title="Donate" href="javascript:showSplash();"><span id="saldo"></span> Donate $</a> | <a title="Galveston Raids" href="javascript:show_raid('galveston');">Raid List</a>
+        <h1>&nbsp;<a title="Donate" href="javascript:showSplash();"><span id="saldo"></span> Donate $</a> | <a title="Galveston Raids" href="javascript:show_raid('galveston');">Raid List</a> | 
 
 <div class="dropdown">
   <button class="dropbtn">Filter</button>
