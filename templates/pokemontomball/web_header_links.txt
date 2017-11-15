@@ -69,8 +69,8 @@
 <div class="dropdown">
   <button class="dropbtn">Filter</button>
   <div class="dropdown-content">
-                  <a href="javascript:hideall();     ">All Off</a>
-                  <a href="javascript:showall();     ">All On</a>
+                  <a href="javascript:hideall();     ">All Pokemon Off</a>
+                  <a href="javascript:showall();     ">All Pokemon On</a>
                   <a href="javascript:onlyrares();   ">Rare Only</a>
                   <a href="javascript:onlygen1();    ">Gen1 Only</a>
                   <a href="javascript:onlygen2();    ">Gen2 Only</a>
@@ -83,6 +83,7 @@
                   <a href="javascript:showgen3();    ">Turn On Gen3</a>
                   <a href="javascript:showdratini(); ">Turn On Dratini Family</a>
                   <a href="javascript:showlarvitar();">Turn On Larvitar Family</a>
+                  <a href="javascript:showraids(0,0);">Turn Off Raids</a>
                   <a href="javascript:showraids(1,5);">Only Raids, All Levels</a>
                   <a href="javascript:showraids(5,5);">Only Raids, Level 5</a>
                   <a href="javascript:showraids(4,4);">Only Raids, Level 4</a>
@@ -214,13 +215,19 @@ function showlarvitar(){
 }
 
 function showraids(lvlmin, lvlmax){
-    Store.set('showRaidPokemon', "0");
-    Store.set('showRaidMinLevel', lvlmin.toString());
-    Store.set('showRaidMaxLevel', lvlmax.toString());
-    Store.set('showActiveRaidsOnly', false)
-    Store.set('showRaids', true)
-    Store.set('showPokemon', false)
-    location.reload();
+    if (lvlmax > 0) {
+        Store.set('showRaidPokemon', "0");
+        Store.set('showRaidMinLevel', lvlmin.toString());
+        Store.set('showRaidMaxLevel', lvlmax.toString());
+        Store.set('showActiveRaidsOnly', false);
+        Store.set('showRaids', true);
+        Store.set('showPokemon', false);
+        location.reload();
+    }
+    else {
+        Store.set('showRaids', false);
+        location.reload();
+    }
 }
 
 </script>
