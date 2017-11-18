@@ -112,6 +112,13 @@
   </div>
 </div>
 
+<div class="dropdown">
+  <button class="dropbtn">Other</button>
+  <div class="dropdown-content">
+                  <a href="https://nests.pokemontomball.xyz/nests">Nest List (needs 24 hrs after nest change)</a>
+  </div>
+</div>
+
 </h1>
 
 <script>
