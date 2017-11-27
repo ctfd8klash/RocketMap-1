@@ -153,10 +153,10 @@ function onlyrares(){
     updatePokemon();
 }
 function onlyshiny(){
-    exclude = gen1.concat(gen2)
-    exclude = exclude.concat(gen3)
+    excludeall = gen1.concat(gen2)
+    excludeall = excludeall.concat(gen3)
     shiny = [25,129,353,355,302];
-    $selectExclude.val(current.diff(shiny.map(String))).trigger('change');
+    $selectExclude.val(excludeall.diff(shiny.map(String))).trigger('change');
     updatePokemon();
 }
 function onlygen1(){
