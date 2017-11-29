@@ -21,8 +21,8 @@
     position: absolute;
     background-color: #f9f9f9;
     font-size: 0.8em;
-    line-height: 2.0em;
-    min-width: 160px;
+    line-height: 1.8em;
+    min-width: 180px;
     box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.2);
     z-index: 1;
     right: 0;
@@ -49,11 +49,11 @@
 </style>
 
 <h1><a title="Message of the Day" href="javascript:showSplash2();"><img class='rocket icon' src='static/images/houstonmapcircle.png'></a></h1>
-<h1>&nbsp;<a title="Donate" href="javascript:showSplash();"><span id="saldo"></span>$ |</a> 
+<h1>&nbsp;<a title="Donate" href="javascript:showSplash();"><span id="saldo"></span><i class="fa fa-dollar"></i></a>&nbsp;
         
 <div class="dropdown">
-  <button class="dropbtn">Raid</button>
-  <div class="dropdown-content">
+  <button class="dropbtn"><i class="fa fa-group" title="View Raids"></i></button>
+  <div class="dropdown-content" style="left:0;">
     <a href="javascript:show_raid('raikou');">Suicine</a>
     <a href="javascript:show_raid('ttar');">Ttar/Machamp</a>
     <a href="javascript:show_raid('vintage');">Vintage Park</a>
@@ -67,8 +67,8 @@
 </div>
            
 <div class="dropdown">
-  <button class="dropbtn">Filter</button>
-  <div class="dropdown-content">
+  <button class="dropbtn"><i class="fa fa-filter" title="Filter Pokemon"></i></button>
+  <div class="dropdown-content" style="left:0;">
                   <a href="javascript:hideall();     ">All Pokemon Off</a>
                   <a href="javascript:showall();     ">All Pokemon On</a>
                   <a href="javascript:onlyrares();   ">Rare Only</a>
@@ -95,7 +95,7 @@
 </div>
 
 <div class="dropdown">
-  <button class="dropbtn">Locate</button>
+  <button class="dropbtn"><i class="fa fa-location-arrow" title="Choose Location"></i></button>
   <div class="dropdown-content">
                   <a href="?lat=29.987767&lon=-95.498513">Champions (1960 & Veterans)</a>
                   <a href="?lat=30.315862&lon=-95.459219">Conroe</a>
@@ -114,9 +114,9 @@
 </div>
 
 <div class="dropdown">
-  <button class="dropbtn">Other</button>
+  <button class="dropbtn"><i class="fa fa-bars"></i></button>
   <div class="dropdown-content">
-                  <a href="https://nests.pokemontomball.xyz/nests">Nest List (needs 24 hrs after nest change)</a>
+                  <a href="https://nests.pokemontomball.xyz/nests">Nest List (24 hr delay)</a>
   </div>
 </div>
 
