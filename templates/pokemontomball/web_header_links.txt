@@ -21,7 +21,7 @@
     position: absolute;
     background-color: #f9f9f9;
     font-size: 0.8em;
-    line-height: 1.8em;
+    line-height: 1.9em;
     min-width: 180px;
     box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.2);
     z-index: 1;
@@ -68,7 +68,7 @@
            
 <div class="dropdown">
   <button class="dropbtn"><i class="fa fa-filter" title="Filter Pokemon"></i></button>
-  <div class="dropdown-content" style="left:0;">
+  <div class="dropdown-content" style="left:0;min-width:225px;">
                   <a href="javascript:hideall();     ">All Pokemon Off</a>
                   <a href="javascript:showall();     ">All Pokemon On</a>
                   <a href="javascript:onlyrares();   ">Rare Only</a>
