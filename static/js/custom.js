@@ -276,7 +276,7 @@ function show_raid(location)
         case 'ff'        : locinfo = ['Fairfield Raids',    'raid_fairfield.txt'    ]; break;
         case 'north'     : locinfo = ['North Tomball',      'raid_4corners.txt'     ]; break;
         case 'ttar'      : locinfo = ['Ttar/Machamp',       'raid_ttar_machamp.txt' ]; break;
-        case 'raikou'    : locinfo = ['Suicine Raids',      'raid_raikou.txt'       ]; break;
+        case 'raikou'    : locinfo = ['Legendary Raids',    'raid_raikou.txt'       ]; break;
     }
     
     if (isMobileDevice()) {
