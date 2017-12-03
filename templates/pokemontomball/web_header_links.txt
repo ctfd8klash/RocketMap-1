@@ -54,7 +54,7 @@
 <div class="dropdown">
   <button class="dropbtn"><i class="fa fa-group" title="View Raids"></i></button>
   <div class="dropdown-content" style="left:0;">
-    <a href="javascript:show_raid('raikou');">Suicine</a>
+    <a href="javascript:show_raid('raikou');">Legendary</a>
     <a href="javascript:show_raid('ttar');">Ttar/Machamp</a>
     <a href="javascript:show_raid('vintage');">Vintage Park</a>
     <a href="javascript:show_raid('woodlands');">Woodlands</a>
