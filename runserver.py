@@ -215,6 +215,9 @@ def main():
 
     set_log_and_verbosity(log)
 
+    args.root_path = os.path.dirname(os.path.abspath(__file__))
+    init_args(args)
+
     # Abort if only-server and no-server are used together
     if args.only_server and args.no_server:
         log.critical(
@@ -311,9 +314,6 @@ def main():
         log.info(
             'Drop and recreate is complete. Now remove -cd and restart.')
         sys.exit()
-
-    args.root_path = os.path.dirname(os.path.abspath(__file__))
-    init_args(args)
 
     # Control the search status (running or not) across threads.
     control_flags = {
