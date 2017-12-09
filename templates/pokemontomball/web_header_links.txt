@@ -54,7 +54,8 @@
 <div class="dropdown">
   <button class="dropbtn"><i class="fa fa-group" title="View Raids"></i></button>
   <div class="dropdown-content" style="left:0;">
-    <a href="javascript:show_raid('raikou');">Legendary</a>
+    <a href="javascript:show_raid('legendary');">Legendary</a>
+    <a href="javascript:show_raid('gen3');">Gen3</a>
     <a href="javascript:show_raid('ttar');">Ttar/Machamp</a>
     <a href="javascript:show_raid('vintage');">Vintage Park</a>
     <a href="javascript:show_raid('woodlands');">Woodlands</a>
@@ -63,6 +64,8 @@
     <a href="javascript:show_raid('ff');">Fairfield</a>
     <a href="javascript:show_raid('north');">4-Corners</a>
     <a href="javascript:show_raid('magnolia');">Magnolia</a>
+    <a href="javascript:show_raid('conroe');">Conroe</a>
+    <a href="javascript:show_raid('east');">East Houston</a>
   </div>
 </div>
            
@@ -99,6 +102,7 @@
   <div class="dropdown-content">
                   <a href="?lat=29.987767&lon=-95.498513">Champions (1960 & Veterans)</a>
                   <a href="?lat=30.315862&lon=-95.459219">Conroe</a>
+                  <a href="?lat=29.785088&lon=-95.169754">East Houston</a>
                   <a href="?lat=29.998614&lon=-95.734852">Fairfield</a>
                   <a href="?lat=29.882420&lon=-95.555508">Jersey Village</a>
                   <a href="?lat=30.209007&lon=-95.750283">Magnolia</a>
