@@ -276,7 +276,7 @@ function show_raid(location)
         case 'ff'        : locinfo = ['Fairfield Raids',    'raid_fairfield.txt'    ]; break;
         case 'north'     : locinfo = ['North Tomball',      'raid_4corners.txt'     ]; break;
         case 'ttar'      : locinfo = ['Ttar/Machamp',       'raid_ttar_machamp.txt' ]; break;
-        case 'legendary' : locinfo = ['Legendary Raids',    'raid_lengendary.txt'   ]; break;
+        case 'legendary' : locinfo = ['Legendary Raids',    'raid_legendary.txt'    ]; break;
         case 'gen3'      : locinfo = ['Gen3 Raid Bosses',   'raid_gen3.txt'         ]; break;
         case 'conroe'    : locinfo = ['Conroe Raids',       'raid_conroe.txt'       ]; break;
         case 'east'      : locinfo = ['East Houston Raids', 'raid_east.txt'         ]; break;
