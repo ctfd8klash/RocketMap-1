@@ -1026,7 +1026,7 @@ function isNotifyPoke(poke) {
         hasHighIV = notifiedMinPerfection > 0 && perfection >= notifiedMinPerfection
         hasHighLevel = notifiedMinLevel > 0 && level >= notifiedMinLevel
 
-        hasHighAttributes = (hasHighIV && notifiedMinLevel === 0) || (hasHighLevel && notifiedMinPerfection === 0) || hasHighLevel && hasHighIV 
+        hasHighAttributes = (hasHighIV && notifiedMinLevel === 0) || (hasHighLevel && notifiedMinPerfection === 0) || hasHighLevel && hasHighIV
     }
 
     return isOnNotifyList || hasHighAttributes
