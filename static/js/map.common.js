@@ -1049,6 +1049,10 @@ var StoreOptions = {
     'isBounceDisabled': {
         default: false,
         type: StoreTypes.Boolean
+    },
+    'isClusteringDisabled': {
+        default: false,
+        type: StoreTypes.Boolean
     }
 }
 

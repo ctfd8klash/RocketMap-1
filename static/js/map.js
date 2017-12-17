@@ -446,6 +446,7 @@ function initSidebar() {
     $('#hideunnotified-switch').prop('checked', Store.get('hideNotNotified'))
     $('#popups-switch').prop('checked', Store.get('showPopups'))
     $('#bounce-switch').prop('checked', Store.get('isBounceDisabled'))
+    $('#clustering-switch').prop('checked', Store.get('isClusteringDisabled'))
     $('#sound-switch').prop('checked', Store.get('playSound'))
     $('#pokemoncries').toggle(Store.get('playSound'))
     $('#cries-switch').prop('checked', Store.get('playCries'))
@@ -2946,6 +2947,11 @@ $(function () {
 
     $('#bounce-switch').change(function () {
         Store.set('isBounceDisabled', this.checked)
+        location.reload();
+    })
+
+    $('#clustering-switch').change(function () {
+        Store.set('isClusteringDisabled', this.checked)
         location.reload();
     })
 
