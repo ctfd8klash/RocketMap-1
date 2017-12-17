@@ -177,7 +177,8 @@ function initMap() { // eslint-disable-line no-unused-vars
         imagePath: 'static/images/cluster/m',
         maxZoom: Store.get('maxClusterZoomLevel'),
         zoomOnClick: Store.get('clusterZoomOnClick'),
-        gridSize: Store.get('clusterGridSize')
+        gridSize: Store.get('clusterGridSize'),
+        minimumClusterSize: 10
     }
 
     markerCluster = new MarkerClusterer(map, [], clusterOptions)
