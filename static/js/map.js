@@ -997,7 +997,7 @@ function getRaidLevel(raid) {
     }
 }
 function getRaidPokemon(raid) {
-    if (raid === null) {
+    if (raid === null || raid === undefined) {
         return 0
     } else {
         return raid['pokemon_id']
