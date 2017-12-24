@@ -2751,7 +2751,7 @@ def clean_db_loop(args):
                              rows, diff.total_seconds())
 
             log.info('Regular database cleaning complete.')
-            time.sleep(60)
+            time.sleep(60*30)
         except Exception as e:
             log.exception('Exception in clean_db_loop: %s', repr(e))
 
