@@ -122,8 +122,8 @@ function onlyshiny(){
     excludeall = gen1.concat(gen2)
     excludeall = excludeall.concat(gen3)
     excludeall = excludeall.map(String)
-    shiny = [25,129,353,355,302];
-    $selectExclude.val(excludeall.diff(shiny.map(String))).trigger('change');
+    shiny = [25,129,353,355,302,361,362];
+     $selectExclude.val(excludeall.diff(shiny.map(String))).trigger('change');
     updatePokemon();
 }
 function onlygen1(){
