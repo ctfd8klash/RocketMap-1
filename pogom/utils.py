@@ -784,12 +784,6 @@ def get_args():
             with open(args.ignorelist_file) as f:
                 args.ignorelist = frozenset([int(l.strip()) for l in f])
 
-        # each line in file contains:
-        #    pokemon_name    odds_of_ignoring
-        if args.ignoremaybe_file:
-            with open(args.ignoremaybe_file) as f:
-                args.maybelist = [tuple(map(int, l.split())) for l in f]
-
         # Decide which scanning mode to use.
         if args.spawnpoint_scanning:
             args.scheduler = 'SpawnScan'
@@ -837,7 +831,7 @@ def init_args(args):
 
     # Ignore Partial List
     args.maybelist = []
-    if args.maybelist:
+    if args.ignoremaybe_file:
         log.info("Watching pokemon partial ignore list file {} for changes.".format(args.ignoremaybe_file))
         watchercfg['maybelist'] = (args.ignoremaybe_file, None)
 
@@ -859,6 +853,7 @@ def watch_pokemon_lists(args, cfg):
                     if args.ignoremaybe_file:
                         with open(args.ignoremaybe_file) as f:
                             args.maybelist = [tuple(map(int, l.split())) for l in f]
+                        log.info("File {} changed on disk. Re-read as {}.".format(filename, args_key))
                 else:
                     with open(filename) as f:
                         setattr(args, args_key, read_pokemon_ids_from_file(f))
