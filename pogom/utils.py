@@ -855,9 +855,14 @@ def watch_pokemon_lists(args, cfg):
             current_mtime = statbuf.st_mtime
 
             if current_mtime != tstamp:
-                with open(filename) as f:
-                    setattr(args, args_key, read_pokemon_ids_from_file(f))
-                    log.info("File {} changed on disk. Re-read as {}.".format(filename, args_key))
+                if args_key == 'maybelist':
+                    if args.ignoremaybe_file:
+                        with open(args.ignoremaybe_file) as f:
+                            args.maybelist = [tuple(map(int, l.split())) for l in f]
+                else:
+                    with open(filename) as f:
+                        setattr(args, args_key, read_pokemon_ids_from_file(f))
+                        log.info("File {} changed on disk. Re-read as {}.".format(filename, args_key))
                 cfg[args_key] = (filename, current_mtime)
 
         time.sleep(5)
