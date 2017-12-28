@@ -777,14 +777,12 @@ def get_args():
                 [int(i) for i in args.webhook_whitelist])
 
         # create an empty set
-        args.ignorelist = []
         if args.ignorelist_file:
             with open(args.ignorelist_file) as f:
                 args.ignorelist = frozenset([int(l.strip()) for l in f])
 
         # each line in file contains:
         #    pokemon_name    odds_of_ignoring
-        args.maybelist = []
         if args.ignoremaybe_file:
             with open(args.ignoremaybe_file) as f:
                 args.maybelist = [tuple(map(int, l.split())) for l in f]
@@ -827,6 +825,18 @@ def init_args(args):
     if args.webhook_whitelist_file:
         log.info("Watching webhook whitelist file {} for changes.".format(args.webhook_whitelist_file))
         watchercfg['webhook_whitelist'] = (args.webhook_whitelist_file, None)
+
+    # Ignore List
+    args.ignorelist = []
+    if args.ignorelist_file:
+        log.info("Watching pokemon ignore list file {} for changes.".format(args.ignorelist_file))
+        watchercfg['ignorelist'] = (args.ignorelist_file, None)
+
+    # Ignore Partial List
+    args.maybelist = []
+    if args.maybelist:
+        log.info("Watching pokemon partial ignore list file {} for changes.".format(args.ignoremaybe_file))
+        watchercfg['maybelist'] = (args.ignoremaybe_file, None)
 
     t = Thread(target=watch_pokemon_lists, args=(args, watchercfg))
     t.daemon = True
