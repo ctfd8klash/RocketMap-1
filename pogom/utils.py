@@ -197,6 +197,9 @@ def get_args():
                         default='', help='Just like the ignore list except that ' +
                         'Pokemon will be ignored a percentage of the time, ' +
                         'which is specified as integer from 0-100 in 2nd column')
+    parser.add_argument('-whiv', '--webhook_iv_required_maybelist',
+                        help='Webhook requires IV information if pokemon on ignore maybe list or else it is skipped',
+                        action='store_true', default=False)
     parser.add_argument('-encwf', '--enc-whitelist-file',
                         default='', help='File containing a list of '
                         'Pokemon IDs or names to encounter for'
