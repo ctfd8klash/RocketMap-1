@@ -90,6 +90,7 @@
   <button class="dropbtn"><i class="fa fa-sun-o" title="Filter Pokemon"></i></button>
   <div class="dropdown-content" style="left:-150px;min-width:325px;">
                   <a href="javascript:hideall();      ">All Pokemon Off</a>
+                  <a href="javascript:showall();      ">All Pokemon On</a>
                   <a href="javascript:weather(sunny); ">Weather Pokemon: Sunny</a>
                   <a href="javascript:weather(partly);">Weather Pokemon: Partly Cloudy</a>
                   <a href="javascript:weather(cloudy);">Weather Pokemon: Cloudy</a>
