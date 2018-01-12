@@ -484,7 +484,7 @@ function getTypeSpan(type) {
 function openMapDirections(lat, lng) { // eslint-disable-line no-unused-vars
     var url = ''
     if (Store.get('mapServiceProvider') === 'googlemaps') {
-        url = 'https://www.google.com/maps/?daddr=' + lat + ',' + lng
+        url = 'http://maps.google.com/maps/?daddr=' + lat + ',' + lng
         window.open(url, '_blank')
     } else if (Store.get('mapServiceProvider') === 'applemaps') {
         url = 'https://maps.apple.com/maps?daddr=' + lat + ',' + lng
@@ -617,7 +617,7 @@ function pokemonLabel(item) {
               </div>
               <div>
                 <span class='pokemon navigate'><a href='javascript:void(0);' onclick='javascript:openMapDirections(${latitude},${longitude});' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [dir]</span><BR>
-                <span class='pokemon navigate'><a href='https://www.google.com/maps/?q=${latitude},${longitude}' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [loc]</span><BR>
+                <span class='pokemon navigate'><a href='http://maps.google.com/maps?q=${latitude},${longitude}' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [loc]</span><BR>
               </div>
           </div>
         </div>
@@ -651,7 +651,7 @@ function pokemonLabel(item) {
           </div>
           <div>
             <span class='pokemon navigate'><a href='javascript:void(0);' onclick='javascript:openMapDirections(${latitude},${longitude});' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [dir]</span><BR>
-            <span class='pokemon navigate'><a href='https://www.google.com/maps/?q=${latitude},${longitude}' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [loc]</span><BR>
+            <span class='pokemon navigate'><a href='http://maps.google.com/maps?q=${latitude},${longitude}' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [loc]</span><BR>
           </div>
           <div id='checkivInfo${encounterIdLong}' class='pokemon checkivinfo'></div>
       </div>
@@ -798,7 +798,7 @@ function gymLabel(gym, includeMembers = true) {
                     </a> [directions]
                   </span><BR>
                   <span class='gym info navigate'>
-                    <a href='https://www.google.com/maps/?q=${gym.latitude},${gym.longitude}' title='Open in Google Maps'>
+                    <a href='http://maps.google.com/maps?q=${gym.latitude},${gym.longitude}' title='Open in Google Maps'>
                       ${gym.latitude.toFixed(6)}, ${gym.longitude.toFixed(7)}
                     </a> [location]
                   </span><BR>
@@ -869,7 +869,7 @@ function pokestopLabel(expireTime, latitude, longitude) {
               </div>
               <div>
                 <span class='pokestop navigate'><a href='javascript:void(0);' onclick='javascript:openMapDirections(${latitude},${longitude});' title='Open in Google Maps'; class='pokestop lure'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [dir]</span><BR>
-                <span class='pokestop navigate'><a href='https://www.google.com/maps/?q=${latitude},${longitude}' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [loc]</span><BR>
+                <span class='pokestop navigate'><a href='http://maps.google.com/maps?q=${latitude},${longitude}' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [loc]</span><BR>
               </div>
             </div>
           </div>`
@@ -884,7 +884,7 @@ function pokestopLabel(expireTime, latitude, longitude) {
               </div>
               <div>
                 <span class='pokestop navigate'><a href='javascript:void(0);' onclick='javascript:openMapDirections(${latitude},${longitude});' title='Open in Google Maps'; class='pokestop nolure'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [dir]</span><BR>
-                <span class='pokestop navigate'><a href='https://www.google.com/maps/?q=${latitude},${longitude}' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [loc]</span><BR>
+                <span class='pokestop navigate'><a href='http://maps.google.com/maps?q=${latitude},${longitude}' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [loc]</span><BR>
               </div>
             </div>
           </div>`
