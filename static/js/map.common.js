@@ -869,6 +869,9 @@ var StoreOptions = {
     'remember_text_level_notify': {
         default: '',
         type: StoreTypes.Number
+    'excludedRarity': {
+        default: 0, // 0: none, 1: <=Common, 2: <=Uncommon, 3: <=Rare, 4: <=Very Rare, 5: <=Ultra Rare
+        type: StoreTypes.Number
     },
     'showRaids': {
         default: false,
@@ -1051,6 +1054,21 @@ var StoreOptions = {
         type: StoreTypes.Boolean
     },
     'isClusteringDisabled': {
+        default: false,
+        type: StoreTypes.Boolean
+    'showLocationMarker': {
+        default: true,
+        type: StoreTypes.Boolean
+    },
+    'isLocationMarkerMovable': {
+        default: false,
+        type: StoreTypes.Boolean
+    },
+    'showSearchMarker': {
+        default: true,
+        type: StoreTypes.Boolean
+    },
+    'isSearchMarkerMovable': {
         default: false,
         type: StoreTypes.Boolean
     }
