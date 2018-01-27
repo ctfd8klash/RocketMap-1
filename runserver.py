@@ -172,36 +172,37 @@ def can_start_scanning(args):
         'faq.html#i-get-an-error-about-pgoapi-version'
     )
 
-    # Assert pgoapi >= pgoapi_version.
-    if (not hasattr(pgoapi, "__version__") or
-            StrictVersion(pgoapi.__version__) < StrictVersion(pgoapi_version)):
-        log.critical(api_version_error)
-        return False
-
     # Abort if we don't have a hash key set.
     if not args.hash_key:
         log.critical('Hash key is required for scanning. Exiting.')
         return False
 
-    # Check the PoGo api pgoapi implements against what RM is expecting.
-    # Some API versions have a non-standard version int, so we map them
-    # to the correct one.
-    api_version_int = int(args.api_version.replace('.', '0'))
-    api_version_map = {
-        8302: 8300,
-        8501: 8500,
-        8705: 8700,
-        8901: 8900
-    }
-    mapped_version_int = api_version_map.get(api_version_int, api_version_int)
-
-    try:
-        if PGoApi.get_api_version() != mapped_version_int:
+    if not args.no_version_check 
+        # Assert pgoapi >= pgoapi_version.
+        if (not hasattr(pgoapi, "__version__") or
+                StrictVersion(pgoapi.__version__) < StrictVersion(pgoapi_version)):
             log.critical(api_version_error)
             return False
-    except AttributeError:
-        log.critical(api_version_error)
-        return False
+
+        # Check the PoGo api pgoapi implements against what RM is expecting.
+        # Some API versions have a non-standard version int, so we map them
+        # to the correct one.
+        api_version_int = int(args.api_version.replace('.', '0'))
+        api_version_map = {
+            8302: 8300,
+            8501: 8500,
+            8705: 8700,
+            8901: 8900
+        }
+        mapped_version_int = api_version_map.get(api_version_int, api_version_int)
+
+        try:
+            if PGoApi.get_api_version() != mapped_version_int:
+                log.critical(api_version_error)
+                return False
+        except AttributeError:
+            log.critical(api_version_error)
+            return False
 
     return True
 
