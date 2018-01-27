@@ -177,7 +177,7 @@ def can_start_scanning(args):
         log.critical('Hash key is required for scanning. Exiting.')
         return False
 
-    if not args.no_version_check 
+    if not args.no_version_check:
         # Assert pgoapi >= pgoapi_version.
         if (not hasattr(pgoapi, "__version__") or
                 StrictVersion(pgoapi.__version__) < StrictVersion(pgoapi_version)):
