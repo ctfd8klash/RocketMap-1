@@ -1390,4 +1390,3 @@ def peewee_attr_to_col(cls, field):
         field_column = field
 
     return field_column
->>>>>>> 5225b59... devkat: DB upsert performance improvements. (#2464)
