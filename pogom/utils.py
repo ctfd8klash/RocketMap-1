@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import configargparse
 import os
 import json
 import logging
@@ -14,6 +13,7 @@ import hashlib
 import psutil
 import subprocess
 import requests
+import configargparse
 
 from s2sphere import CellId, LatLng
 from geopy.geocoders import GoogleV3
@@ -22,6 +22,7 @@ from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from cHaversine import haversine
 from pprint import pformat
+from timeit import default_timer
 
 log = logging.getLogger(__name__)
 
@@ -115,9 +116,9 @@ def get_args():
                               ' rather than only once, and store results in' +
                               ' the database.'),
                         action='store_true', default=False)
-    parser.add_argument('-nj', '--no-jitter',
-                        help=("Don't apply random -9m to +9m jitter to " +
-                              "location."),
+    parser.add_argument('-j', '--jitter',
+                        help=('Apply random -5m to +5m jitter to ' +
+                              'location.'),
                         action='store_true', default=False)
     parser.add_argument('-al', '--access-logs',
                         help=("Write web logs to access.log."),
@@ -278,8 +279,6 @@ def get_args():
                         action='store_true', default=False)
     parser.add_argument('-C', '--cors', help='Enable CORS on web server.',
                         action='store_true', default=False)
-    parser.add_argument('-D', '--db', help='Database filename for SQLite.',
-                        default='pogom.db')
     parser.add_argument('-cd', '--clear-db',
                         help=('Deletes the existing database before ' +
                               'starting the Webserver.'),
@@ -304,7 +303,11 @@ def get_args():
                         help=('Use spawnpoint scanning (instead of hex ' +
                               'grid). Scans in a circle based on step_limit ' +
                               'when on DB.'),
-                        nargs='?', const='nofile', default=False)
+                        action='store_true', default=False)
+    parser.add_argument('-ssct', '--ss-cluster-time',
+                        help=('Time threshold in seconds for spawn point ' +
+                              'clustering (0 to disable).'),
+                        type=int, default=0)
     parser.add_argument('-speed', '--speed-scan',
                         help=('Use speed scanning to identify spawn points ' +
                               'and then scan closest spawns.'),
@@ -317,20 +320,17 @@ def get_args():
                         type=int, default=20)
     parser.add_argument('-kph', '--kph',
                         help=('Set a maximum speed in km/hour for scanner ' +
-                              'movement.'),
+                              'movement. 0 to disable. Default: 35.'),
                         type=int, default=35)
     parser.add_argument('-hkph', '--hlvl-kph',
                         help=('Set a maximum speed in km/hour for scanner ' +
-                              'movement, for high-level (L30) accounts.'),
+                              'movement, for high-level (L30) accounts. ' +
+                              '0 to disable. Default: 25.'),
                         type=int, default=25)
     parser.add_argument('-ldur', '--lure-duration',
                         help=('Change duration for lures set on pokestops. ' +
                               'This is useful for events that extend lure ' +
                               'duration.'), type=int, default=30)
-    parser.add_argument('--dump-spawnpoints',
-                        help=('Dump the spawnpoints from the db to json ' +
-                              '(only for use with -ss).'),
-                        action='store_true', default=False)
     parser.add_argument('-pd', '--purge-data',
                         help=('Clear Pokemon from database this many hours ' +
                               'after they disappear (0 to disable).'),
@@ -371,22 +371,32 @@ def get_args():
                         help=('Enable proxy rotation with account changing ' +
                               'for search threads (none/round/random).'),
                         type=str, default='round')
-    parser.add_argument('--db-type',
-                        help='Type of database to be used (default: sqlite).',
-                        default='sqlite')
-    parser.add_argument('--db-name', help='Name of the database to be used.')
-    parser.add_argument('--db-user', help='Username for the database.')
-    parser.add_argument('--db-pass', help='Password for the database.')
-    parser.add_argument('--db-host', help='IP or hostname for the database.')
-    parser.add_argument(
+    group = parser.add_argument_group('Database')
+    group.add_argument(
+        '--db-name', help='Name of the database to be used.', required=True)
+    group.add_argument(
+        '--db-user', help='Username for the database.', required=True)
+    group.add_argument(
+        '--db-pass', help='Password for the database.', required=True)
+    group.add_argument(
+        '--db-host',
+        help='IP or hostname for the database.',
+        default='127.0.0.1')
+    group.add_argument(
         '--db-port', help='Port for the database.', type=int, default=3306)
-    parser.add_argument('--db-threads',
-                        help=('Number of db threads; increase if the db ' +
-                              'queue falls behind.'),
-                        type=int, default=1)
-    parser.add_argument('-wh', '--webhook',
-                        help='Define URL(s) to POST webhook information to.',
-                        default=None, dest='webhooks', action='append')
+    group.add_argument(
+        '--db-threads',
+        help=('Number of db threads; increase if the db ' +
+              'queue falls behind.'),
+        type=int,
+        default=1)
+    parser.add_argument(
+        '-wh',
+        '--webhook',
+        help='Define URL(s) to POST webhook information to.',
+        default=None,
+        dest='webhooks',
+        action='append')
     parser.add_argument('-gi', '--gym-info',
                         help=('Get all details about gyms (causes an ' +
                               'additional API hit for every gym).'),
@@ -413,8 +423,13 @@ def get_args():
                         help=('Number of times to retry sending webhook ' +
                               'data on failure.'),
                         type=int, default=3)
-    parser.add_argument('-wht', '--wh-timeout',
-                        help='Timeout (in seconds) for webhook requests.',
+    parser.add_argument('-whct', '--wh-connect-timeout',
+                        help=('Connect timeout (in seconds) for webhook' +
+                              ' requests.'),
+                        type=float, default=1.0)
+    parser.add_argument('-whrt', '--wh-read-timeout',
+                        help=('Read timeout (in seconds) for webhook' +
+                              'requests.'),
                         type=float, default=1.0)
     parser.add_argument('-whbf', '--wh-backoff-factor',
                         help=('Factor (in seconds) by which the delay ' +
@@ -455,9 +470,6 @@ def get_args():
                         help='Interval to check API version in seconds ' +
                         '(Default: in [60, 300]).',
                         default=random.randint(60, 300))
-    parser.add_argument('-el', '--encrypt-lib',
-                        help=('Path to encrypt lib to be used instead of ' +
-                              'the shipped ones.'))
     parser.add_argument('-odt', '--on-demand_timeout',
                         help=('Pause searching while web UI is inactive ' +
                               'for this timeout (in seconds).'),
@@ -470,7 +482,7 @@ def get_args():
                         help=('Enables the use of X-FORWARDED-FOR headers ' +
                               'to identify the IP of clients connecting ' +
                               'through these trusted proxies.'))
-    parser.add_argument('--api-version', default='0.85.1',
+    parser.add_argument('--api-version', default='0.91.1',
                         help=('API version currently in use.'))
     parser.add_argument('--no-file-logs',
                         help=('Disable logging to files. ' +
@@ -493,6 +505,17 @@ def get_args():
                          help=('Show debug messages from RocketMap ' +
                                'and pgoapi.'),
                          type=int, dest='verbose')
+    rarity = parser.add_argument_group('Dynamic Rarity')
+    rarity.add_argument('-Rh', '--rarity-hours',
+                        help=('Number of hours of Pokemon data to use' +
+                              ' to calculate dynamic rarity. Decimals' +
+                              ' allowed. Default: 48. 0 to use all data.'),
+                        type=float, default=48)
+    rarity.add_argument('-Rf', '--rarity-update-frequency',
+                        help=('How often (in minutes) the dynamic rarity' +
+                              ' should be updated. Decimals allowed.' +
+                              ' Default: 0. 0 to disable.'),
+                        type=float, default=0)
     parser.set_defaults(DEBUG=False)
 
     args = parser.parse_args()
@@ -801,7 +824,9 @@ def clock_between(start, test, end):
 
 # Return the s2sphere cellid token from a location.
 def cellid(loc):
-    return CellId.from_lat_lng(LatLng.from_degrees(loc[0], loc[1])).to_token()
+    return int(
+        CellId.from_lat_lng(LatLng.from_degrees(loc[0], loc[1])).to_token(),
+        16)
 
 
 # Return approximate distance in meters.
@@ -839,6 +864,38 @@ def i8ln(word):
         return word
 
 
+# Thread function for periodical enc list updating.
+def dynamic_loading_refresher(file_list):
+    # We're on a 60-second timer.
+    refresh_time_sec = 60
+
+    while True:
+        # Wait (x-1) seconds before refresh, min. 1s.
+        time.sleep(max(1, refresh_time_sec - 1))
+
+        for arg_type, filename in file_list.items():
+            try:
+                # IV/CP scanning.
+                if filename:
+                    # Only refresh if the file has changed.
+                    current_time_sec = time.time()
+                    file_modified_time_sec = os.path.getmtime(filename)
+                    time_diff_sec = current_time_sec - file_modified_time_sec
+
+                    # File has changed in the last refresh_time_sec seconds.
+                    if time_diff_sec < refresh_time_sec:
+                        args = get_args()
+                        with open(filename) as f:
+                            new_list = frozenset([int(l.strip()) for l in f])
+                            setattr(args, arg_type, new_list)
+                            log.info('New %s is: %s.', arg_type, new_list)
+                    else:
+                        log.debug('No change found in %s.', filename)
+            except Exception as e:
+                log.exception('Exception occurred while' +
+                              ' updating %s: %s.', arg_type, e)
+
+
 def get_pokemon_data(pokemon_id):
     if not hasattr(get_pokemon_data, 'pokemon'):
         args = get_args()
@@ -854,10 +911,6 @@ def get_pokemon_data(pokemon_id):
 
 def get_pokemon_name(pokemon_id):
     return i8ln(get_pokemon_data(pokemon_id)['name'])
-
-
-def get_pokemon_rarity(pokemon_id):
-    return i8ln(get_pokemon_data(pokemon_id)['rarity'])
 
 
 def get_pokemon_types(pokemon_id):
@@ -902,11 +955,7 @@ def dottedQuadToNum(ip):
 
 # Generate random device info.
 # Original by Noctem.
-IPHONES = {'iPhone5,1': 'N41AP',
-           'iPhone5,2': 'N42AP',
-           'iPhone5,3': 'N48AP',
-           'iPhone5,4': 'N49AP',
-           'iPhone6,1': 'N51AP',
+IPHONES = {'iPhone6,1': 'N51AP',
            'iPhone6,2': 'N53AP',
            'iPhone7,1': 'N56AP',
            'iPhone7,2': 'N61AP',
@@ -958,9 +1007,6 @@ def generate_device_info(identifier):
         # iPhone SE started on 9.3.
         ios_pool = ('9.3', '9.3.1', '9.3.2', '9.3.3', '9.3.4', '9.3.5') \
                    + ios10 + ios11
-    elif device_pick in ('iPhone5,1', 'iPhone5,2', 'iPhone5,3', 'iPhone5,4'):
-        # iPhone 5/5c doesn't support iOS 11.
-        ios_pool = ios9 + ios10
     else:
         ios_pool = ios9 + ios10 + ios11
 
@@ -1285,3 +1331,78 @@ def get_debug_dump_link():
 
     # Upload to hasteb.in.
     return upload_to_hastebin(result)
+
+
+def get_pokemon_rarity(total_spawns_all, total_spawns_pokemon):
+    spawn_group = 'Common'
+
+    spawn_rate_pct = total_spawns_pokemon / float(total_spawns_all)
+    spawn_rate_pct = round(100 * spawn_rate_pct, 4)
+
+    if spawn_rate_pct < 0.01:
+        spawn_group = 'Ultra Rare'
+    elif spawn_rate_pct < 0.03:
+        spawn_group = 'Very Rare'
+    elif spawn_rate_pct < 0.5:
+        spawn_group = 'Rare'
+    elif spawn_rate_pct < 1:
+        spawn_group = 'Uncommon'
+
+    return spawn_group
+
+
+def dynamic_rarity_refresher():
+    # If we import at the top, pogom.models will import pogom.utils,
+    # causing the cyclic import to make some things unavailable.
+    from pogom.models import Pokemon
+
+    # Refresh every x hours.
+    args = get_args()
+    hours = args.rarity_hours
+    root_path = args.root_path
+
+    rarities_path = os.path.join(root_path, 'static/dist/data/rarity.json')
+    update_frequency_mins = args.rarity_update_frequency
+    refresh_time_sec = update_frequency_mins * 60
+
+    while True:
+        log.info('Updating dynamic rarity...')
+
+        start = default_timer()
+        db_rarities = Pokemon.get_spawn_counts(hours)
+        total = db_rarities['total']
+        pokemon = db_rarities['pokemon']
+
+        # Store as an easy lookup table for front-end.
+        rarities = {}
+
+        for poke in pokemon:
+            rarities[poke['pokemon_id']] = get_pokemon_rarity(total,
+                                                              poke['count'])
+
+        # Save to file.
+        with open(rarities_path, 'w') as outfile:
+            json.dump(rarities, outfile)
+
+        duration = default_timer() - start
+        log.info('Updated dynamic rarity. It took %.2fs for %d entries.',
+                 duration,
+                 total)
+
+        # Wait x seconds before next refresh.
+        log.debug('Waiting %d minutes before next dynamic rarity update.',
+                  refresh_time_sec / 60)
+        time.sleep(refresh_time_sec)
+
+
+# Translate peewee model class attribute to database column name.
+def peewee_attr_to_col(cls, field):
+    field_column = getattr(cls, field)
+
+    # Only try to do it on populated fields.
+    if field_column is not None:
+        field_column = field_column.db_column
+    else:
+        field_column = field
+
+    return field_column
