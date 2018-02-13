@@ -256,9 +256,6 @@ def main():
 
     set_log_and_verbosity(log)
 
-    args.root_path = os.path.dirname(os.path.abspath(__file__))
-    init_args(args)
-
     # Abort if only-server and no-server are used together
     if args.only_server and args.no_server:
         log.critical(
@@ -321,8 +318,6 @@ def main():
              'disabled' if args.no_gyms else 'enabled')
     log.info('Pokemon encounters %s.',
              'enabled' if args.encounter else 'disabled')
-    if args.ignoremaybe_file and not args.only_server:
-        log.info('Ignoring these pokemon sometimes %s', args.maybelist)
 
     app = None
     if not args.no_server and not args.clear_db:
@@ -333,6 +328,8 @@ def main():
         app.set_current_location(position)
 
     db = startup_db(app, args.clear_db)
+
+    args.root_path = os.path.dirname(os.path.abspath(__file__))
 
     # Control the search status (running or not) across threads.
     control_flags = {
@@ -425,6 +422,13 @@ def main():
             log.info('Webhook whitelist is enabled.')
         else:
             log.info('Webhook whitelist/blacklist is disabled.')
+
+        if args.ignorelist_file:
+            log.info('Ignoring these pokemon %s', args.ignorelist)
+            files_to_monitor['ignorelist'] = args.ignorelist_file
+        if args.ignoremaybe_file:
+            log.info('Ignoring these pokemon sometimes %s', args.maybelist)
+            files_to_monitor['ignoremaybelist'] = args.ignoremaybe_file
 
         if files_to_monitor:
             t = Thread(target=dynamic_loading_refresher,

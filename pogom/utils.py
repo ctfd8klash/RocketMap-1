@@ -827,64 +827,6 @@ def get_args():
     args.data_dir = 'static/dist/data'
     return args
 
-def init_args(args):
-    """
-    Initialize commandline arguments after parsing. Some things need to happen after parsing.
-
-    :param args: The parsed commandline arguments
-    """
-
-    watchercfg = {}
-    # IV/CP scanning.
-    if args.enc_whitelist_file:
-        log.info("Watching encounter whitelist file {} for changes.".format(args.enc_whitelist_file))
-        watchercfg['enc_whitelist'] = (args.enc_whitelist_file, None)
-
-    # Prepare webhook whitelist - empty list means no restrictions
-    args.webhook_whitelist = []
-    if args.webhook_whitelist_file:
-        log.info("Watching webhook whitelist file {} for changes.".format(args.webhook_whitelist_file))
-        watchercfg['webhook_whitelist'] = (args.webhook_whitelist_file, None)
-
-    # Ignore List
-    args.ignorelist = []
-    if args.ignorelist_file:
-        log.info("Watching pokemon ignore list file {} for changes.".format(args.ignorelist_file))
-        watchercfg['ignorelist'] = (args.ignorelist_file, None)
-
-    # Ignore Partial List
-    args.maybelist = []
-    if args.ignoremaybe_file:
-        log.info("Watching pokemon partial ignore list file {} for changes.".format(args.ignoremaybe_file))
-        watchercfg['maybelist'] = (args.ignoremaybe_file, None)
-
-    t = Thread(target=watch_pokemon_lists, args=(args, watchercfg))
-    t.daemon = True
-    t.start()
-
-
-def watch_pokemon_lists(args, cfg):
-    while True:
-        for args_key in cfg:
-            filename, tstamp = cfg[args_key]
-
-            statbuf = os.stat(filename)
-            current_mtime = statbuf.st_mtime
-
-            if current_mtime != tstamp:
-                if args_key == 'maybelist':
-                    if args.ignoremaybe_file:
-                        with open(args.ignoremaybe_file) as f:
-                            args.maybelist = [tuple(map(int, l.split())) for l in f]
-                        log.info("File {} changed on disk. Re-read as {}.".format(filename, args_key))
-                else:
-                    with open(filename) as f:
-                        setattr(args, args_key, read_pokemon_ids_from_file(f))
-                        log.info("File {} changed on disk. Re-read as {}.".format(filename, args_key))
-                cfg[args_key] = (filename, current_mtime)
-
-        time.sleep(5)
-
 
 def now():
     # The fact that you need this helper...
@@ -1432,8 +1374,6 @@ def get_debug_dump_link():
     # Upload to hasteb.in.
     return upload_to_hastebin(result)
 
-<<<<<<< HEAD
-=======
 
 def get_pokemon_rarity(total_spawns_all, total_spawns_pokemon):
     spawn_group = 'Common'
@@ -1497,7 +1437,6 @@ def dynamic_rarity_refresher():
         time.sleep(refresh_time_sec)
 
 
->>>>>>> develop
 # Translate peewee model class attribute to database column name.
 def peewee_attr_to_col(cls, field):
     field_column = getattr(cls, field)
