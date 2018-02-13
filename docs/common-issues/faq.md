@@ -4,6 +4,12 @@
 
 No, it is gross to charge people for maps when the information should be provided by Niantic! We do not endorse paid maps, which is why this platform is opensource.
 
+### All Pokemon are set as ultra rare, what is going on?
+We now use a dynamic rarity system to determine the rarity of pokemon, the rarity is calculated by what you scan so it unique to your area. The rarity is updated every hour so when you start an initial scan everything will probably say it is ultra rare for the first hour and then will adjust itself.
+
+### Does dynamic rarity mean that all future pokemon will get a rarity automatically?
+Yes.
+
 ### What do the spawn point colors mean?
 
 * A **grey** dot represents a spawn point that is more than 5 minutes from spawning.
@@ -28,7 +34,7 @@ If you happen to have 2-step verification enabled for your Google account you wi
 
 SpeedScan (`-speed`) is the most used scheduler: it's the only scheduler that currently supports finding the proper spawnpoint time and duration, and it also features a built-in speed limiter to avoid speed violations (i.e. softbans).
 
-More information can be found here : [Speed Scheduler](http://rocketmap.readthedocs.io/en/develop/scanning-method/Speed-Scheduler.html)
+More information can be found here : [Speed Scheduler](http://rocketmap.readthedocs.io/en/develop/scanning-method/speed-scheduler.html)
 
 ### But I was happy using the default Hex or -ss...
 
@@ -68,14 +74,6 @@ For a rough guide you can use the formulas at the bottom of this page.
 ### example.py isn't working right!
 
 Seb deleted it, it was the only good thing left in our lives. Seb has murdered us all.
-
-### I have problems with my database because......
-
-RocketMap uses SQLite which doesn't support real concurrency, so you're limited directly by the read/write speed of your drive and you're hoping that nothing happens concurrently (otherwise it breaks).
-
-Higher threads or extra workers = increased odds of SQLite locking up. sqlite also has a very low limit of number of variables that can be used in a single query, which breaks support for medium or large sized maps.
-
-You need [MySQL](http://rocketmap.readthedocs.io/en/develop/extras/mysql.html) if you want a proper database.
 
 ### How do I setup port forwarding?
 
@@ -154,14 +152,6 @@ InternalError(1054, u"unknown column 'cp' in 'field list'") or similar
 ```
 
 Only one instance can run when the database is being modified or upgraded. Run ***ONE*** instance of RM with `-cd` to wipe your database, then run ***ONE*** instance of RM (without `-cd`) to setup your database.
-
-#### SQLite query limit
-
-```
-OperationalError: too many SQL variables
-```
-
-Due to SQLite supporting only a small amount of variables in a single query, you will need to use MySQL as you are above said limit. This is typically due to the adding of more workers/area to your map.
 
 #### Certificate errors
 
