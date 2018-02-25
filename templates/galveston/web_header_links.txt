@@ -63,8 +63,6 @@
   <div class="dropdown-content" style="left:0;min-width:225px;">
                   <a href="javascript:hideall();     ">All Pokemon Off</a>
                   <a href="javascript:showall();     ">All Pokemon On</a>
-                  <a href="javascript:onlyrares();   ">Rare Only</a>
-                  <a href="javascript:onlyshiny();   ">Shiny Possible Only</a>
                   <a href="javascript:onlygen1();    ">Gen1 Only</a>
                   <a href="javascript:onlygen2();    ">Gen2 Only</a>
                   <a href="javascript:onlygen3();    ">Gen3 Only</a>
