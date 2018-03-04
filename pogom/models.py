@@ -2100,7 +2100,7 @@ def parse_map(args, map_dict, scan_coords, scan_location, db_update_queue,
                 if ((pokemon_id in args.webhook_whitelist or
                     (not args.webhook_whitelist and pokemon_id
                      not in args.webhook_blacklist)) and 
-                     ((not pokemon_id in args.maybelist) or (args.webhook_iv_required_maybelist and wh_poke['cp_multiplier'] is not None))):
+                     ((pokemon_id not in args.maybelist) or (args.webhook_iv_required_maybelist and wh_poke['cp_multiplier'] is not None))):
                     wh_poke = pokemon[p.encounter_id].copy()
                     wh_poke.update({
                         'disappear_time': calendar.timegm(
