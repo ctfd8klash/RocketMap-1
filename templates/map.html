@@ -47,8 +47,8 @@
       <header id="header">
         <a href="#nav"><span class="label">Menu</span></a>
         {% include 'web_header_links.txt' %}
-
-        </header>
+        <span id="weatherInfo" style="float: right; vertical-align: middle;"></span>
+      </header>
       <!-- NAV -->
       <nav id="nav">
         <div id="nav-accordion">
@@ -318,6 +318,38 @@
             </div>
                   {% endif %}
               {% endif %}
+              {% if show.weather_cells %}
+            <div class="form-control switch-container">
+                <h3>Weather</h3>
+                <div class="onoffswitch">
+                    <input id="weather-cells-switch" type="checkbox" name="ranges-switch" class="onoffswitch-checkbox">
+                    <label class="onoffswitch-label" for="weather-cells-switch">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-control switch-container">
+                <h3>s2cells</h3>
+                <div class="onoffswitch">
+                    <input id="s2cells-switch" type="checkbox" name="ranges-switch" class="onoffswitch-checkbox">
+                    <label class="onoffswitch-label" for="s2cells-switch">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-control switch-container">
+                <h3>Weather Alerts</h3>
+                <div class="onoffswitch">
+                    <input id="weather-alerts-switch" type="checkbox" name="ranges-switch" class="onoffswitch-checkbox">
+                    <label class="onoffswitch-label" for="weather-alerts-switch">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span>
+                    </label>
+                </div>
+            </div>
+              {% endif %}
           </div>
 
           <h3><i class="fa fa-location-arrow fa-fw"></i>Location &amp; Search Settings</h3>
@@ -548,6 +580,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/push.js/1.0.4/push.min.js"></script>
     <script src="{{ url_for('static', filename='dist/js/vendor/markerclusterer.min.js').lstrip('/') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsts/1.5.0/jsts.min.js"></script>
     <script>
       var centerLat = {{lat}};
       var centerLng = {{lng}};
@@ -564,6 +597,7 @@
       {% endif %}
     <script src="{{ url_for('static', filename='dist/js/map.min.js').lstrip('/') }}"></script>
     <script src="{{ url_for('static', filename='dist/js/stats.min.js').lstrip('/') }}"></script>
+    <script src="{{ url_for('static', filename='dist/js/weather.min.js').lstrip('/') }}"></script>
     <script defer src="https://maps.googleapis.com/maps/api/js?key={{ gmaps_key }}&amp;callback=initMap&amp;libraries=places,geometry"></script>
     <script async src='https://www.google-analytics.com/analytics.js'></script>
 
