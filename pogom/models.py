@@ -20,6 +20,7 @@ from playhouse.pool import PooledMySQLDatabase
 from playhouse.shortcuts import RetryOperationalError, case
 from playhouse.migrate import migrate, MySQLMigrator
 from datetime import datetime, timedelta
+from base64 import b64encode
 from cachetools import TTLCache
 from cachetools import cached
 from timeit import default_timer
