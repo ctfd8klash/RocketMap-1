@@ -2775,12 +2775,13 @@ def bulk_upsert(cls, data, db):
     num_rows = len(rows)
     i = 0
 
-    if args.db_type == 'mysql':
-        step = 250
-    else:
+#    if args.db_type == 'mysql':
+#        step = 250
+#    else:
         # SQLite has a default max number of parameters of 999,
         # so we need to limit how many rows we insert for it.
-        step = 50
+#        step = 50
+    step = 50
 
     # This shouldn't happen, ever, but anyways...
     if num_rows < 1:
