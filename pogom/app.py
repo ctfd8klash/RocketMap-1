@@ -18,6 +18,7 @@ from s2sphere import LatLng
 from pogom.pgscout import scout_error, pgscout_encounter
 from pogom.utils import get_args, get_pokemon_name
 from bisect import bisect_left
+from base64 import b64encode
 
 from pogom.weather import get_weather_cells, get_s2_coverage, \
     get_weather_alerts
@@ -113,10 +114,12 @@ class Pogom(Flask):
             encounterId = request.args.get('encounter_id')
             p = Pokemon.get(Pokemon.encounter_id == encounterId)
             pokemon_name = get_pokemon_name(p.pokemon_id)
+            p.encounter_id = b64encode(str(p.encounter_id))
+            p.spawnpoint_id = format(p.spawnpoint_id, 'x')
             log.info(
-                u"On demand PGScouting a {} at {}, {}.".format(pokemon_name,
+                u"On demand PGScouting a {} at {}, {} with ID {} and spawn {}.".format(pokemon_name,
                                                               p.latitude,
-                                                              p.longitude))
+                                                              p.longitude, encounterId, p.spawnpoint_id))
             scout_result = pgscout_encounter(p, 1)
             if scout_result['success']:
 #broken                self.update_scouted_pokemon(p, scout_result)

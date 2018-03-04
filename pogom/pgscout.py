@@ -19,6 +19,8 @@ def scout_error(error_msg):
 def pgscout_encounter(p, force):
     args = get_args()
 
+#    log.info(u"Encountering Mon {}, ID {}, SPAWNID {}, LAT {}, LONG {}, FORCE {}.".format(p.pokemon_id, p.encounter_id, p.spawnpoint_id, p.latitude, p.longitude, force))
+
     # Assemble PGScout request
     params = {
         'pokemon_id': p.pokemon_id,

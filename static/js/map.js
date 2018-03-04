@@ -620,7 +620,6 @@ function pokemonLabel(item) {
     var form = item['form']
     var cp = item['cp']
     var cpMultiplier = item['cp_multiplier']
-    var encounterIdLong = atob(encounterId)
     var weatherBoostedCondition = item['weather_boosted_condition']
     var weatherDisplay = ''
     const showStats = Store.get('showPokemonStats')
@@ -684,7 +683,7 @@ function pokemonLabel(item) {
                 <span class='pokemon navigate'><a href='javascript:void(0);' onclick='javascript:openMapDirections(${latitude},${longitude});' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [dir]</span><BR>
                 <span class='pokemon navigate'><a href='http://maps.google.com/maps?q=${latitude},${longitude}' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [loc]</span><BR>
               </div>
-              <div id='checkivInfo${encounterIdLong}' class='pokemon checkivinfo'></div>
+              <div id='checkivInfo${encounterId}' class='pokemon checkivinfo'></div>
           </div>
         </div>
       </div>`
@@ -719,7 +718,7 @@ function pokemonLabel(item) {
             <span class='pokemon navigate'><a href='javascript:void(0);' onclick='javascript:openMapDirections(${latitude},${longitude});' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [dir]</span><BR>
             <span class='pokemon navigate'><a href='http://maps.google.com/maps?q=${latitude},${longitude}' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [loc]</span><BR>
           </div>
-          <div id='checkivInfo${encounterIdLong}' class='pokemon checkivinfo'></div>
+          <div id='checkivInfo${encounterId}' class='pokemon checkivinfo'></div>
       </div>
     </div>
   </div>`

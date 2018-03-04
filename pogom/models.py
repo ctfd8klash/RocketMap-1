@@ -1899,8 +1899,6 @@ def hex_bounds(center, steps=None, radius=None):
 def perform_pgscout(p):
     pokemon_id = p.pokemon_data.pokemon_id
     pokemon_name = get_pokemon_name(pokemon_id)
-    log.info(u"PGScouting a {} at {}, {}.".format(pokemon_name, p.latitude,
-                                                  p.longitude))
 
     # Prepare Pokemon object
     pkm = Pokemon()
@@ -1909,6 +1907,8 @@ def perform_pgscout(p):
     pkm.spawnpoint_id = p.spawn_point_id
     pkm.latitude = p.latitude
     pkm.longitude = p.longitude
+    log.info(u"PGScouting a {} at {}, {} with ID {} and {}.".format(pokemon_name, p.latitude,
+                                                  p.longitude, pkm.encounter_id, p.encounter_id))
     scout_result = pgscout_encounter(pkm, 0)
     if scout_result['success']:
         log.info(
