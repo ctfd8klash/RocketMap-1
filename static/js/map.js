@@ -558,7 +558,7 @@ function getDateStr(t) {
 }
 
 function checkiv(encounterId) { // eslint-disable-line no-unused-vars
-    var infoEl = $('#checkivInfo' + atob(encounterId))
+    var infoEl = $('#checkivInfo' + encounterId)
 
     $.ajax({
         url: 'scout',
@@ -591,7 +591,7 @@ function checkiv(encounterId) { // eslint-disable-line no-unused-vars
                 pkm['cp_multiplier'] = data.cp_multiplier
                 pkm.marker.infoWindow.setContent(pokemonLabel(pkm))
             } else {
-                infoEl.text(data.error)
+                infoEl.text('Error checking IV, try again?')
             }
         }
     })
@@ -684,6 +684,7 @@ function pokemonLabel(item) {
                 <span class='pokemon navigate'><a href='javascript:void(0);' onclick='javascript:openMapDirections(${latitude},${longitude});' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [dir]</span><BR>
                 <span class='pokemon navigate'><a href='http://maps.google.com/maps?q=${latitude},${longitude}' title='Open in Google Maps'>${latitude.toFixed(6)}, ${longitude.toFixed(7)}</a> [loc]</span><BR>
               </div>
+              <div id='checkivInfo${encounterIdLong}' class='pokemon checkivinfo'></div>
           </div>
         </div>
       </div>`
