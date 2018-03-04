@@ -41,13 +41,8 @@ log = logging.getLogger(__name__)
 args = get_args()
 flaskDb = FlaskDB()
 cache = TTLCache(maxsize=100, ttl=60 * 5)
-<<<<<<< HEAD
 
-db_schema_version = 21
-=======
-db_schema_version = 25
->>>>>>> develop
-
+db_schema_version = 28
 
 class MyRetryDB(RetryOperationalError, PooledMySQLDatabase):
     pass
@@ -130,6 +125,7 @@ class Pokemon(LatLongModel):
     gender = SmallIntegerField(null=True)
     costume = SmallIntegerField(null=True)
     form = SmallIntegerField(null=True)
+    weather_boosted_condition = SmallIntegerField(null=True)
     last_modified = DateTimeField(
         null=True, index=True, default=datetime.utcnow)
 
@@ -436,6 +432,7 @@ class Gym(LatLongModel):
     guard_pokemon_id = SmallIntegerField()
     slots_available = SmallIntegerField()
     enabled = BooleanField()
+    park = BooleanField(default=False)
     latitude = DoubleField()
     longitude = DoubleField()
     total_cp = SmallIntegerField()
@@ -511,6 +508,7 @@ class Gym(LatLongModel):
                            GymPokemon.pokemon_id,
                            GymPokemon.costume,
                            GymPokemon.form,
+                           GymPokemon.shiny,
                            Trainer.name.alias('trainer_name'),
                            Trainer.level.alias('trainer_level'))
                        .join(Gym, on=(GymMember.gym_id == Gym.gym_id))
@@ -595,6 +593,7 @@ class Gym(LatLongModel):
                            GymPokemon.iv_stamina,
                            GymPokemon.costume,
                            GymPokemon.form,
+                           GymPokemon.shiny,
                            Trainer.name.alias('trainer_name'),
                            Trainer.level.alias('trainer_level'))
                    .join(Gym, on=(GymMember.gym_id == Gym.gym_id))
@@ -632,6 +631,20 @@ class Gym(LatLongModel):
             pass
 
         return result
+
+    @staticmethod
+    def set_gyms_in_park(gyms, park):
+        gym_ids = [gym['gym_id'] for gym in gyms]
+        Gym.update(park=park).where(Gym.gym_id << gym_ids).execute()
+
+    @staticmethod
+    def get_gyms_park(id):
+        with Gym.database().execution_context():
+            gym_by_id = Gym.select(Gym.park).where(
+                Gym.gym_id == id).dicts()
+            if gym_by_id:
+                return gym_by_id[0]['park']
+        return False
 
 
 class Raid(BaseModel):
@@ -1274,11 +1287,11 @@ class SpawnPoint(LatLongModel):
 
         return list(spawnpoints.values())
 
-    # Confirm if tth has been found.
+    # Confirm if TTH has been found.
     @staticmethod
     def tth_found(sp):
-        # Fully indentified if no '?' in links and
-        # latest_seen == earliest_unseen.
+        # Fully identified if no '?' in links and
+        # latest_seen % 3600 == earliest_unseen % 3600.
         # Warning: python uses modulo as the least residue, not as
         # remainder, so we don't apply it to the result.
         latest_seen = (sp['latest_seen'] % 3600)
@@ -1711,6 +1724,7 @@ class GymPokemon(BaseModel):
     iv_attack = SmallIntegerField(null=True)
     costume = SmallIntegerField(null=True)
     form = SmallIntegerField(null=True)
+    shiny = SmallIntegerField(null=True)
     last_seen = DateTimeField(default=datetime.utcnow)
 
 
@@ -2057,10 +2071,19 @@ def parse_map(args, map_dict, scan_coords, scan_location, db_update_queue,
                 'weight': None,
                 'gender': p.pokemon_data.pokemon_display.gender,
                 'costume': p.pokemon_data.pokemon_display.costume,
-                'form': p.pokemon_data.pokemon_display.form
+                'form': p.pokemon_data.pokemon_display.form,
+                'weather_boosted_condition': None
+
             }
 
-<<<<<<< HEAD
+            # Store Pokémon boosted condition.
+            # TODO: Move pokemon_display to the top.
+            pokemon_display = p.pokemon_data.pokemon_display
+            boosted = pokemon_display.weather_boosted_condition
+            if boosted:
+                pokemon[p.encounter_id]['weather_boosted_condition'] = boosted
+
+
             # Check for Unown's alphabetic character.
             if pokemon_id == 201:
                 pokemon[p.encounter_id]['form'] = (p.pokemon_data
@@ -2080,9 +2103,9 @@ def parse_map(args, map_dict, scan_coords, scan_location, db_update_queue,
                     'cp': scout_result['cp'],
                     'cp_multiplier': scout_result['cp_multiplier'],
                 })
-=======
->>>>>>> develop
-            # We need to check if exist and is not false due to a request error
+
+            # We need to check if exist and is not false due to a
+            # request error.
             elif pokemon_info:
                 pokemon[p.encounter_id].update({
                     'individual_attack': pokemon_info.individual_attack,
@@ -2180,7 +2203,10 @@ def parse_map(args, map_dict, scan_coords, scan_location, db_update_queue,
                 b64_gym_id = str(f.id)
                 gym_display = f.gym_display
                 raid_info = f.raid_info
+                park = Gym.get_gyms_park(f.id)
+
                 # Send gyms to webhooks.
+
                 if 'gym' in args.wh_types:
                     raid_active_until = 0
                     raid_battle_ms = raid_info.raid_battle_ms
@@ -2197,6 +2223,8 @@ def parse_map(args, map_dict, scan_coords, scan_location, db_update_queue,
                             b64_gym_id,
                         'team_id':
                             f.owned_by_team,
+                        'park':
+                            park,
                         'guard_pokemon_id':
                             f.guard_pokemon_id,
                         'slots_available':
@@ -2220,12 +2248,13 @@ def parse_map(args, map_dict, scan_coords, scan_location, db_update_queue,
                         'raid_active_until':
                             raid_active_until
                     }))
-
                 gyms[f.id] = {
                     'gym_id':
                         f.id,
                     'team_id':
                         f.owned_by_team,
+                    'park':
+                        park,
                     'guard_pokemon_id':
                         f.guard_pokemon_id,
                     'slots_available':
@@ -2241,6 +2270,7 @@ def parse_map(args, map_dict, scan_coords, scan_location, db_update_queue,
                     'last_modified':
                         datetime.utcfromtimestamp(
                             f.last_modified_timestamp_ms / 1000.0),
+
                 }
 
                 if not args.no_raids and f.type == 0:
@@ -2589,6 +2619,7 @@ def parse_gyms(args, gym_responses, wh_update_queue, db_update_queue):
                 'iv_attack': pokemon.individual_attack,
                 'costume': pokemon.pokemon_display.costume,
                 'form': pokemon.pokemon_display.form,
+                'shiny': pokemon.pokemon_display.shiny,
                 'last_seen': datetime.utcnow(),
             }
 
@@ -2744,7 +2775,6 @@ def bulk_upsert(cls, data, db):
     num_rows = len(rows)
     i = 0
 
-<<<<<<< HEAD
     if args.db_type == 'mysql':
         step = 250
     else:
@@ -2752,8 +2782,6 @@ def bulk_upsert(cls, data, db):
         # so we need to limit how many rows we insert for it.
         step = 50
 
-=======
->>>>>>> develop
     # This shouldn't happen, ever, but anyways...
     if num_rows < 1:
         return
@@ -3208,7 +3236,8 @@ def database_migrate(db, old_ver):
                                 DateTimeField(
                                     null=False, default=datetime.utcnow())),
             migrator.add_column('gym', 'total_cp',
-                                SmallIntegerField(null=False, default=0)))
+                                SmallIntegerField(null=False, default=0))
+        )
 
     if old_ver < 21:
         # First rename all tables being modified.
@@ -3318,7 +3347,27 @@ def database_migrate(db, old_ver):
                                 SmallIntegerField(null=True)),
             # Add `costume` column to `gympokemon`
             migrator.add_column('gympokemon', 'costume',
-                                SmallIntegerField(null=True)))
+                                SmallIntegerField(null=True))
+        )
+
+    if old_ver < 26:
+        migrate(
+            # Add `park` column to `gym`
+            migrator.add_column('gym', 'park', BooleanField(default=False))
+        )
+
+    if old_ver < 27:
+        migrate(
+            # Add `shiny` column to `gympokemon`
+            migrator.add_column('gympokemon', 'shiny',
+                                SmallIntegerField(null=True))
+        )
+
+    if old_ver < 28:
+        migrate(
+            migrator.add_column('pokemon', 'weather_boosted_condition',
+                                SmallIntegerField(null=True))
+        )
 
     # Always log that we're done.
     log.info('Schema upgrade complete.')
