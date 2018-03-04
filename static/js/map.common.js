@@ -1069,7 +1069,7 @@ var StoreOptions = {
     'isClusteringDisabled': {
         default: false,
         type: StoreTypes.Boolean
-    }
+    },
     'showLocationMarker': {
         default: true,
         type: StoreTypes.Boolean
