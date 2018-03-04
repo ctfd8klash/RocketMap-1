@@ -1768,6 +1768,7 @@ function processPokemon(item) {
     if (!(item['encounter_id'] in mapData.pokemons) &&
          !isPokeExcluded && !isRarityExcluded && isPokeAlive) {
         // Add marker to map and item to dict.
+        const isNotifyPkmn = isNotifyPoke(item)
         if (!item.hidden && (!Store.get('hideNotNotified') || isNotifyPkmn)) {
             const isBounceDisabled = Store.get('isBounceDisabled')
             const scaleByRarity = Store.get('scaleByRarity')
