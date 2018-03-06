@@ -114,6 +114,8 @@ class Pogom(Flask):
             encounterId = request.args.get('encounter_id')
             p = Pokemon.get(Pokemon.encounter_id == encounterId)
             pokemon_name = get_pokemon_name(p.pokemon_id)
+            save_encounter_id = p.encounter_id
+            save_spawnpoint_id = p.spawnpoint_id
             p.encounter_id = b64encode(str(p.encounter_id))
             p.spawnpoint_id = format(p.spawnpoint_id, 'x')
             log.info(
@@ -122,7 +124,10 @@ class Pogom(Flask):
                                                               p.longitude, encounterId, p.spawnpoint_id))
             scout_result = pgscout_encounter(p, 1)
             if scout_result['success']:
-#broken                self.update_scouted_pokemon(p, scout_result)
+                p.encounter_id  = save_encounter_id
+                p.spawnpoint_id = save_spawnpoint_id
+                
+                self.update_scouted_pokemon(p, scout_result)
                 log.info(
                     u"Successfully PGScouted a {:.1f}% lvl {} {} with {} CP"
                     u" (scout level {}).".format(
@@ -155,16 +160,12 @@ class Pogom(Flask):
                 'height': response['height'],
                 'weight': response['weight'],
                 'gender': response['gender'],
-                'form': response.get('form', None),
+                'form': response.get('form', 0),
                 'cp': response['cp'],
-                'cp_multiplier': response['cp_multiplier'],
-                'catch_prob_1': response['catch_prob_1'],
-                'catch_prob_2': response['catch_prob_2'],
-                'catch_prob_3': response['catch_prob_3'],
-                'rating_attack': response['rating_attack'],
-                'rating_defense': response['rating_defense']
+                'cp_multiplier': response['cp_multiplier']
             }
         }
+        log.info('Adding to DB queue: {}'.format(update_data))
         self.db_updates_queue.put((Pokemon, update_data))
 
     def get_weather(self, page=1):
